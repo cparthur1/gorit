@@ -1907,6 +1907,10 @@ if ('serviceWorker' in navigator) {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+  if (window.location.hostname.endsWith('github.io')) {
+    const filesBtn = document.getElementById('header-files-btn');
+    if (filesBtn) filesBtn.style.display = 'none';
+  }
   updateLanguageUI();
   renderColorSwatches();
   renderIconPalette();
