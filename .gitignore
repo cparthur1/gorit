@@ -1,0 +1,23 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Backups
+*.bak
+*.backup
+*.pre_cronogramas_backup
+backups/
+
+# Personal local content / docs (keep local)
+content/
+
+# Operating System artifacts
+.DS_Store
+Thumbs.db
+
+# IDE and local configuration
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gorit - Study &amp; Exam Tracker</title>
+  <meta name="description" content="Organize and track semester subjects, course content, exam deadlines, and study to-dos with real-time automatic progress calculation." />
+  
+  <!-- Web & Webapp Install (PWA) Icons -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#3b82f7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Gorit" />
+  <meta name="application-name" content="Gorit" />
+
+  <!-- Typography & Material Design 3 / Material You Expressive Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header: Gorit Brand Bar, Stats, Backup & Restore -->
+    <header class="app-header">
+      <!-- Brand & Top Actions Bar -->
+      <div class="brand-bar">
+        <div class="brand-identity">
+          <div class="brand-logo-wrap">
+            <img src="favicon.svg" alt="Gorit Logo" class="brand-logo-img" width="38" height="38" />
+          </div>
+          <div class="brand-titles">
+            <h1 class="brand-name">Gor<span class="brand-accent">i</span>t</h1>
+            <span class="brand-tagline">Study &amp; Exam Tracker</span>
+          </div>
+        </div>
+
+        <div class="header-right-group">
+          <div class="autosave-badge" id="autosave-badge" title="All interactions continuously autosave to the host device">
+            <span class="autosave-dot" id="autosave-dot"></span>
+            <span class="autosave-text" id="autosave-text">Autosaved to device</span>
+          </div>
+
+          <div class="header-actions">
+            <a href="/files" class="btn btn-outline btn-sm" title="Instant HTTP File Server / Browse &amp; Share Files" target="_blank">
+              <span class="material-symbols-rounded icon-sm">folder_open</span>
+              Files
+            </a>
+            <button class="btn btn-outline btn-sm" onclick="exportData()" title="Export data backup (JSON)">
+              <span class="material-symbols-rounded icon-sm">download</span>
+              Backup
+            </button>
+            
+            <label class="btn btn-outline btn-sm" style="margin:0; cursor:pointer;" title="Restore backup (JSON)">
+              <span class="material-symbols-rounded icon-sm">upload</span>
+              Restore
+              <input type="file" accept=".json" style="display:none;" onchange="importData(event)" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Semester Stats Bar -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-label">Subjects</span>
+          <span class="stat-val" id="stat-total-subjects">0</span>
+          <span class="stat-hint" id="stat-total-contents">0 contents</span>
+        </div>
+
+        <div class="stat-box">
+          <span class="stat-label">Next Exam</span>
+          <div class="stat-val" style="font-size: 1.15rem;" id="stat-next-exam">
+            <span style="color:var(--text-muted); font-size: 0.9rem;">Calculating...</span>
+          </div>
+        </div>
+
+        <div class="stat-box">
+          <span class="stat-label">Overall Progress</span>
+          <span class="stat-val" id="stat-total-progress">0%</span>
+          <span class="stat-hint">Semester completion</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs: Material You Expressive Segmented Pills -->
+    <nav class="nav-tab-container">
+      <button class="tab-btn active" data-tab="studies" onclick="switchTab('studies')">
+        <span class="material-symbols-rounded">checklist</span>
+        <span>Contents &amp; Tasks</span>
+      </button>
+      <button class="tab-btn" data-tab="semester" onclick="switchTab('semester')">
+        <span class="material-symbols-rounded">school</span>
+        <span>Semester Subjects</span>
+      </button>
+    </nav>
+
+    <!-- View 1: Main Studies Collapsible Accordion -->
+    <main id="view-studies" class="tab-view active">
+      <!-- Search & Controls -->
+      <div class="control-bar">
+        <div class="search-wrapper">
+          <span class="material-symbols-rounded search-icon">search</span>
+          <input 
+            type="text" 
+            id="search-input" 
+            class="search-input" 
+            placeholder="Search subject or content..." 
+            oninput="handleSearch(event)"
+          />
+        </div>
+
+        <div class="control-actions">
+          <button class="btn btn-outline btn-sm" onclick="expandAll()" title="Expand all subjects and contents">
+            <span class="material-symbols-rounded icon-sm">unfold_more</span>
+            Expand All
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="collapseAll()" title="Collapse all">
+            <span class="material-symbols-rounded icon-sm">unfold_less</span>
+            Collapse All
+          </button>
+        </div>
+      </div>
+
+      <!-- Chronological sorting note -->
+      <div class="chrono-banner">
+        <div class="chrono-banner-text">
+          <span class="material-symbols-rounded chrono-icon">schedule</span>
+          <span><strong>Chronological Order:</strong> Subjects organized with upcoming exams at the top.</span>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="switchTab('semester')">
+          <span class="material-symbols-rounded icon-sm">add</span>
+          Add Subject
+        </button>
+      </div>
+
+      <!-- Collapsible Subject Cards List -->
+      <div id="studies-list-container">
+        <!-- Injected via JavaScript -->
+      </div>
+    </main>
+
+    <!-- View 2: Semester Subjects Management -->
+    <section id="view-semester" class="tab-view">
+      <div class="semester-grid">
+        <!-- Form to Add/Edit Subject -->
+        <div class="form-panel">
+          <h3 id="subject-form-title">
+            <span class="material-symbols-rounded" style="color:var(--primary);">library_add</span>
+            Add New Subject
+          </h3>
+          
+          <form onsubmit="handleSaveSubject(event)">
+            <div class="form-group">
+              <label class="form-label" for="subject-name-input">Subject Name *</label>
+              <input 
+                type="text" 
+                id="subject-name-input" 
+                class="form-control" 
+                placeholder="e.g. Human Anatomy, Medical Physiology, Pathology..." 
+                required 
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="subject-code-input">Code or Acronym (optional)</label>
+              <input 
+                type="text" 
+                id="subject-code-input" 
+                class="form-control" 
+                placeholder="e.g. ANAT101, PHYS101, PHARM201..." 
+              />
+            </div>
+
+            <!-- Subject Material Symbol Icon Picker -->
+            <div class="form-group">
+              <label class="form-label">Subject Icon</label>
+              <div class="icon-palette" id="icon-palette-container">
+                <!-- Material Symbols injected by JS -->
+              </div>
+              <input type="hidden" id="selected-icon-input" value="medical_services" />
+            </div>
+
+            <!-- Color Picker -->
+            <div class="form-group">
+              <label class="form-label">Subject Color</label>
+              <div class="color-swatches" id="color-swatches-container">
+                <!-- Swatches injected by JS -->
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
+              <button type="submit" id="subject-submit-btn" class="btn btn-primary" style="flex:1;">
+                <span class="material-symbols-rounded icon-sm">add</span>
+                Add Subject
+              </button>
+              <button 
+                type="button" 
+                id="subject-cancel-btn" 
+                class="btn btn-outline" 
+                style="display:none;" 
+                onclick="cancelEditSubject()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Registered Subjects List for the Semester -->
+        <div class="manage-list-panel">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.25rem;">
+            <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
+              <span class="material-symbols-rounded" style="color:var(--primary);">view_list</span>
+              Registered Subjects for this Semester
+            </h3>
+          </div>
+          <div id="semester-subjects-list">
+            <!-- Injected by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal: Add / Edit Content -->
+  <div class="modal-overlay" id="content-modal" onclick="if(event.target === this) closeContentModal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="content-modal-title">Add Content</h3>
+        <button class="btn-icon" onclick="closeContentModal()" title="Close modal" aria-label="Close">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      
+      <form onsubmit="handleSaveContentModal(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="content-modal-subject-select">Subject *</label>
+            <select id="content-modal-subject-select" class="form-control" required>
+              <!-- Filled dynamically -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="content-title-input">Content Title *</label>
+            <input 
+              type="text" 
+              id="content-title-input" 
+              class="form-control" 
+              placeholder="e.g. Cardiovascular System, Cranial Nerves..." 
+              required 
+            />
+          </div>
+
+          <!-- Exam Date / Deadline -->
+          <div class="form-group">
+            <label class="form-label" for="content-date-input">
+              <span class="material-symbols-rounded icon-sm" style="color:var(--primary);">event</span>
+              Deadline / Exam Date for this Content
+            </label>
+            <input 
+              type="date" 
+              id="content-date-input" 
+              class="form-control" 
+            />
+            <small style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.25rem;">
+              This date determines the chronological order on the main screen.
+            </small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label" for="content-notes-input">Notes or Tips (optional)</label>
+            <textarea 
+              id="content-notes-input" 
+              class="form-control" 
+              rows="3" 
+              placeholder="Textbook chapters, key concepts to review..."
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeContentModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Save Content
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- App Script -->
+  <script src="app.js"></script>
+</body>
+</html>
