@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="627" viewBox="0 0 1200 627" fill="none">
+  <defs>
+    <!-- Background Gradient (Matching Flashcards aesthetic) -->
+    <linearGradient id="ogBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc"/>
+      <stop offset="45%" stop-color="#eff6ff"/>
+      <stop offset="100%" stop-color="#dbeafe"/>
+    </linearGradient>
+
+    <!-- Google Hero Gradient -->
+    <linearGradient id="ogHeroGrad" x1="12%" y1="8%" x2="88%" y2="92%">
+      <stop offset="0%" stop-color="#b8caff"/>
+      <stop offset="20%" stop-color="#82a6ff"/>
+      <stop offset="50%" stop-color="#3b82f7"/>
+      <stop offset="82%" stop-color="#1d61e8"/>
+      <stop offset="100%" stop-color="#1042b5"/>
+    </linearGradient>
+
+    <linearGradient id="ogSpineGrad" x1="10%" y1="10%" x2="90%" y2="90%">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#09215c"/>
+    </linearGradient>
+
+    <linearGradient id="ogRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#f1f5f9"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+
+    <linearGradient id="ogTabOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fb923c"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+
+    <linearGradient id="ogTabEmerald" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <linearGradient id="ogTabPurple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <!-- Drop Shadows for OG Card -->
+    <filter id="ogHeroShadow" x="-30%" y="-25%" width="160%" height="155%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="20" result="b1"/>
+      <feOffset in="b1" dx="0" dy="22" result="o1"/>
+      <feFlood flood-color="#071b40" flood-opacity="0.22" result="c1"/>
+      <feComposite in="c1" in2="o1" operator="in" result="s1"/>
+
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="b2"/>
+      <feOffset in="b2" dx="0" dy="6" result="o2"/>
+      <feFlood flood-color="#071b40" flood-opacity="0.14" result="c2"/>
+      <feComposite in="c2" in2="o2" operator="in" result="s2"/>
+
+      <feMerge>
+        <feMergeNode in="s1"/>
+        <feMergeNode in="s2"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="ogPillShadow" x="-10%" y="-20%" width="120%" height="150%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="pb"/>
+      <feOffset in="pb" dx="0" dy="2" result="po"/>
+      <feFlood flood-color="#091e42" flood-opacity="0.06" result="pc"/>
+      <feComposite in="pc" in2="po" operator="in" result="ps"/>
+      <feMerge>
+        <feMergeNode in="ps"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="627" fill="url(#ogBg)"/>
+
+  <!-- Ambient Decorative Atmosphere Circles -->
+  <circle cx="1080" cy="110" r="320" fill="#3b82f7" opacity="0.07"/>
+  <circle cx="160" cy="540" r="260" fill="#8b5cf6" opacity="0.05"/>
+  <circle cx="900" cy="500" r="200" fill="#10b981" opacity="0.04"/>
+
+  <!-- LEFT: Hero Organizer Book Graphic -->
+  <g transform="translate(290, 314) scale(1.08)" filter="url(#ogHeroShadow)">
+    
+    <!-- Subject Divider Tabs on Right Edge -->
+    <!-- Tab 1: Orange -->
+    <g transform="translate(150, -112)">
+      <path d="M 0 0 L 32 0 C 46 0 56 10 56 24 L 56 46 C 56 60 46 70 32 70 L 0 70 Z" fill="url(#ogTabOrange)"/>
+      <circle cx="32" cy="35" r="5" fill="#ffffff" opacity="0.9"/>
+    </g>
+
+    <!-- Tab 2: Emerald -->
+    <g transform="translate(150, -26)">
+      <path d="M 0 0 L 32 0 C 46 0 56 10 56 24 L 56 46 C 56 60 46 70 32 70 L 0 70 Z" fill="url(#ogTabEmerald)"/>
+      <circle cx="32" cy="35" r="5" fill="#ffffff" opacity="0.9"/>
+    </g>
+
+    <!-- Tab 3: Purple -->
+    <g transform="translate(150, 60)">
+      <path d="M 0 0 L 32 0 C 46 0 56 10 56 24 L 56 46 C 56 60 46 70 32 70 L 0 70 Z" fill="url(#ogTabPurple)"/>
+      <circle cx="32" cy="35" r="5" fill="#ffffff" opacity="0.9"/>
+    </g>
+
+    <!-- Back Spine Underlay -->
+    <rect x="-164" y="-186" width="328" height="396" rx="44" fill="url(#ogSpineGrad)"/>
+
+    <!-- Front Cover -->
+    <g>
+      <rect x="-168" y="-190" width="324" height="390" rx="42" fill="url(#ogHeroGrad)"/>
+      <rect x="-167" y="-189" width="322" height="388" rx="41" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+
+      <!-- Circular Punch Holes -->
+      <g opacity="0.45">
+        <circle cx="-105" cy="-165" r="8" fill="#06163a"/>
+        <circle cx="-35" cy="-165" r="8" fill="#06163a"/>
+        <circle cx="35" cy="-165" r="8" fill="#06163a"/>
+        <circle cx="105" cy="-165" r="8" fill="#06163a"/>
+      </g>
+
+      <!-- Central Progress Ring & Checkmark -->
+      <g transform="translate(0, -32)">
+        <circle cx="0" cy="0" r="58" fill="none" stroke="#ffffff" stroke-width="10" opacity="0.25"/>
+        <circle cx="0" cy="0" r="58" fill="none" stroke="#ffffff" stroke-width="10" stroke-linecap="round"
+                stroke-dasharray="280 365" stroke-dashoffset="0" transform="rotate(-90)"/>
+        
+        <circle cx="0" cy="0" r="40" fill="#ffffff"/>
+        <path d="M -15 -1 L -4 10 L 17 -11" fill="none" stroke="#1d61e8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+
+      <!-- Checklist items -->
+      <g transform="translate(0, 62)">
+        <circle cx="-92" cy="0" r="9" fill="#ffffff"/>
+        <path d="M -96 0 L -93 3 L -88 -2" fill="none" stroke="#1d61e8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="-68" y="-7" width="152" height="14" rx="7" fill="#ffffff" opacity="0.95"/>
+      </g>
+      <g transform="translate(0, 98)">
+        <circle cx="-92" cy="0" r="9" fill="#ffffff"/>
+        <path d="M -96 0 L -93 3 L -88 -2" fill="none" stroke="#1d61e8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="-68" y="-7" width="118" height="14" rx="7" fill="#ffffff" opacity="0.95"/>
+      </g>
+      <g transform="translate(0, 134)">
+        <circle cx="-92" cy="0" r="9" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.85"/>
+        <circle cx="-92" cy="0" r="3.5" fill="#ffffff" opacity="0.85"/>
+        <rect x="-68" y="-7" width="80" height="14" rx="7" fill="#ffffff" opacity="0.70"/>
+      </g>
+    </g>
+
+    <!-- Top Rings -->
+    <g>
+      <rect x="-115" y="-210" width="20" height="52" rx="10" fill="url(#ogRingGrad)"/>
+      <rect x="-111" y="-206" width="5" height="44" rx="2.5" fill="#ffffff" opacity="0.8"/>
+
+      <rect x="-45" y="-210" width="20" height="52" rx="10" fill="url(#ogRingGrad)"/>
+      <rect x="-41" y="-206" width="5" height="44" rx="2.5" fill="#ffffff" opacity="0.8"/>
+
+      <rect x="25" y="-210" width="20" height="52" rx="10" fill="url(#ringGrad)"/>
+      <rect x="29" y="-206" width="5" height="44" rx="2.5" fill="#ffffff" opacity="0.8"/>
+
+      <rect x="95" y="-210" width="20" height="52" rx="10" fill="url(#ogRingGrad)"/>
+      <rect x="99" y="-206" width="5" height="44" rx="2.5" fill="#ffffff" opacity="0.8"/>
+    </g>
+  </g>
+
+  <!-- RIGHT: Typography & Branding Information -->
+  <g transform="translate(590, 145)">
+    
+    <!-- Category Pill Badge -->
+    <rect x="0" y="0" width="252" height="38" rx="19" fill="#dbeafe"/>
+    <text x="20" y="25" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="800" fill="#1d4ed8" letter-spacing="0.8">
+      STUDY &amp; EXAM TRACKER
+    </text>
+
+    <!-- Main Title -->
+    <text x="0" y="116" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="76" font-weight="900" fill="#0f172a" letter-spacing="-1.5">
+      Gorit
+    </text>
+
+    <!-- Subtitle / Value Proposition -->
+    <text x="0" y="164" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="500" fill="#475569" letter-spacing="-0.2">
+      Domine seu semestre acadêmico e provas.
+    </text>
+
+    <!-- Feature Value Cards (M3 Elevated Pills) -->
+    <g transform="translate(0, 204)">
+      <!-- Feature 1: Cronograma -->
+      <g filter="url(#ogPillShadow)">
+        <rect x="0" y="0" width="520" height="46" rx="16" fill="#ffffff"/>
+        <circle cx="24" cy="23" r="12" fill="#eff6ff"/>
+        <path d="M 19 23 L 23 27 L 30 19" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="48" y="29" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="600" fill="#1e293b">
+          Cronograma Semestral &amp; Prazos de Prova
+        </text>
+      </g>
+
+      <!-- Feature 2: Progresso Automático -->
+      <g transform="translate(0, 56)" filter="url(#ogPillShadow)">
+        <rect x="0" y="0" width="520" height="46" rx="16" fill="#ffffff"/>
+        <circle cx="24" cy="23" r="12" fill="#eff6ff"/>
+        <path d="M 19 23 L 23 27 L 30 19" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="48" y="29" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="600" fill="#1e293b">
+          Progresso Automático, Checklist &amp; Lembretes
+        </text>
+      </g>
+
+      <!-- Feature 3: Flashcards Ecosystem -->
+      <g transform="translate(0, 112)" filter="url(#ogPillShadow)">
+        <rect x="0" y="0" width="520" height="46" rx="16" fill="#ffffff"/>
+        <circle cx="24" cy="23" r="12" fill="#eff6ff"/>
+        <path d="M 19 23 L 23 27 L 30 19" fill="none" stroke="#2563eb" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="48" y="29" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="600" fill="#1e293b">
+          Sincronização em Nuvem (Flashcards PRO) &amp; Offline PWA
+        </text>
+      </g>
+    </g>
+
+    <!-- Footer URL -->
+    <text x="0" y="412" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="15" font-weight="700" fill="#3b82f7" letter-spacing="0.2">
+      cparthur1.github.io/gorit
+    </text>
+  </g>
+</svg>

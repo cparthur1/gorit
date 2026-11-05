@@ -4,7 +4,7 @@
  * Gorit - Offline PWA Service Worker
  */
 
-const CACHE_NAME = 'gorit-v1.3.2';
+const CACHE_NAME = 'gorit-v1.4.0';
 
 const BASE_PATH = self.registration && self.registration.scope 
   ? new URL(self.registration.scope).pathname.replace(/\/$/, '') 
@@ -21,11 +21,13 @@ const RAW_ASSETS = [
   '/manifest.json',
   '/favicon.ico',
   '/favicon.svg',
+  '/favicon.png',
   '/apple-touch-icon.png',
   '/assets/img/logo.svg',
   '/assets/img/logo.png',
   '/assets/img/favicon.svg',
   '/assets/img/favicon.ico',
+  '/assets/img/favicon.png',
   '/assets/img/favicon-32x32.png',
   '/assets/img/favicon-16x16.png',
   '/assets/img/apple-touch-icon.png',
@@ -33,7 +35,9 @@ const RAW_ASSETS = [
   '/assets/img/icon-512.png',
   '/assets/img/icon-maskable-192.png',
   '/assets/img/icon-maskable-512.png',
-  '/assets/img/icon-maskable.svg'
+  '/assets/img/icon-maskable.svg',
+  '/assets/img/og-image.svg',
+  '/assets/img/og-image.png'
 ];
 
 const ASSETS_TO_CACHE = RAW_ASSETS.map(p => p === '/' ? (BASE_PATH || '/') : `${BASE_PATH}${p}`);
