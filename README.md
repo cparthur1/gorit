@@ -43,7 +43,18 @@
   2. **Continuous Server Autosave:** Automatically persists state to `data.json` on the hosting device via the built-in HTTP server (`/api/data`).
 - **Live Status Indicator:** Real-time pulse dot reflecting device synchronization status (`Autosaved to device`, `Saving...`, `Offline`).
 
-### 5. Built-in Instant HTTP File Server & LAN Sharing
+### 5. Internationalization & Localization (i18n)
+- **Bilingual Engine ([js/i18n.js](./js/i18n.js)):** Built-in support for **Portuguese (pt-BR)** and **English (en-US)**.
+- **Smart Locale Detection:** Automatically detects browser locale (defaults to `pt-BR` for Portuguese/Spanish environments, `en-US` for others).
+- **Instant Header Toggle:** One-click language switcher (`PT` / `EN`) in the top app bar with live DOM updates.
+
+### 6. Dedicated Offline Service Worker (PWA)
+- **Offline Cache Architecture ([sw.js](./sw.js)):** Adopts the same PWA caching strategy as `Flashcards`.
+- **Pre-cached Core Assets:** Automatically stores HTML, CSS, JavaScript, icons, and fonts for immediate offline loads.
+- **Cache-First CDN Assets:** Caches Google Fonts, Material Symbols, and Canvas Confetti scripts.
+- **Stale-While-Revalidate Origin Fetch:** Delivers instant cache loads while ensuring code freshness in the background.
+
+### 7. Built-in Instant HTTP File Server & LAN Sharing
 - Run `server.py` to serve the web application and instantly share lecture PDFs, study summaries, and textbook notes across devices connected to the same Wi-Fi.
 - Accessible at `/files` with upload, download, and directory navigation capabilities.
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gorit - Study &amp; Exam Tracker</title>
-  <meta name="description" content="Organize and track semester subjects, course content, exam deadlines, and study to-dos with real-time automatic progress calculation." />
+  <title id="app-page-title">Gorit - Study &amp; Exam Tracker</title>
+  <meta id="app-page-desc" name="description" content="Organize and track semester subjects, course content, exam deadlines, and study to-dos with real-time automatic progress calculation." />
   
   <!-- Web & Webapp Install (PWA) Icons -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -40,29 +40,35 @@
           </div>
           <div class="brand-titles">
             <h1 class="brand-name">Gor<span class="brand-accent">i</span>t</h1>
-            <span class="brand-tagline">Study &amp; Exam Tracker</span>
+            <span class="brand-tagline" data-i18n="app_tagline">Study &amp; Exam Tracker</span>
           </div>
         </div>
 
         <div class="header-right-group">
           <div class="autosave-badge" id="autosave-badge" title="All interactions continuously autosave to the host device">
             <span class="autosave-dot" id="autosave-dot"></span>
-            <span class="autosave-text" id="autosave-text">Autosaved to device</span>
+            <span class="autosave-text" id="autosave-text" data-i18n="autosaved_device">Autosaved to device</span>
           </div>
 
           <div class="header-actions">
-            <a href="/files" class="btn btn-outline btn-sm" title="Instant HTTP File Server / Browse &amp; Share Files" target="_blank">
+            <!-- Language Switcher (strictly pt-BR / en-US) -->
+            <button class="btn btn-outline btn-sm lang-toggle-btn" id="lang-toggle-btn" onclick="toggleLanguage()" title="Alternar idioma / Switch language">
+              <span class="material-symbols-rounded icon-sm">translate</span>
+              <span id="current-lang-label">PT</span>
+            </button>
+
+            <a href="/files" class="btn btn-outline btn-sm" data-i18n-title="files_title" title="Instant HTTP File Server / Browse &amp; Share Files" target="_blank">
               <span class="material-symbols-rounded icon-sm">folder_open</span>
-              Files
+              <span data-i18n="files_button">Files</span>
             </a>
-            <button class="btn btn-outline btn-sm" onclick="exportData()" title="Export data backup (JSON)">
+            <button class="btn btn-outline btn-sm" onclick="exportData()" data-i18n-title="backup_title" title="Export data backup (JSON)">
               <span class="material-symbols-rounded icon-sm">download</span>
-              Backup
+              <span data-i18n="backup_button">Backup</span>
             </button>
             
-            <label class="btn btn-outline btn-sm" style="margin:0; cursor:pointer;" title="Restore backup (JSON)">
+            <label class="btn btn-outline btn-sm" style="margin:0; cursor:pointer;" data-i18n-title="restore_title" title="Restore backup (JSON)">
               <span class="material-symbols-rounded icon-sm">upload</span>
-              Restore
+              <span data-i18n="restore_button">Restore</span>
               <input type="file" accept=".json" style="display:none;" onchange="importData(event)" />
             </label>
           </div>
@@ -72,22 +78,22 @@
       <!-- Quick Semester Stats Bar -->
       <div class="stats-grid">
         <div class="stat-box">
-          <span class="stat-label">Subjects</span>
+          <span class="stat-label" data-i18n="stat_subjects">Subjects</span>
           <span class="stat-val" id="stat-total-subjects">0</span>
           <span class="stat-hint" id="stat-total-contents">0 contents</span>
         </div>
 
         <div class="stat-box">
-          <span class="stat-label">Next Exam</span>
+          <span class="stat-label" data-i18n="stat_next_exam">Next Exam</span>
           <div class="stat-val" style="font-size: 1.15rem;" id="stat-next-exam">
-            <span style="color:var(--text-muted); font-size: 0.9rem;">Calculating...</span>
+            <span style="color:var(--text-muted); font-size: 0.9rem;" data-i18n="stat_calculating">Calculating...</span>
           </div>
         </div>
 
         <div class="stat-box">
-          <span class="stat-label">Overall Progress</span>
+          <span class="stat-label" data-i18n="stat_overall_progress">Overall Progress</span>
           <span class="stat-val" id="stat-total-progress">0%</span>
-          <span class="stat-hint">Semester completion</span>
+          <span class="stat-hint" data-i18n="stat_semester_completion">Semester completion</span>
         </div>
       </div>
     </header>
@@ -96,11 +102,11 @@
     <nav class="nav-tab-container">
       <button class="tab-btn active" data-tab="studies" onclick="switchTab('studies')">
         <span class="material-symbols-rounded">checklist</span>
-        <span>Contents &amp; Tasks</span>
+        <span data-i18n="tab_studies">Contents &amp; Tasks</span>
       </button>
       <button class="tab-btn" data-tab="semester" onclick="switchTab('semester')">
         <span class="material-symbols-rounded">school</span>
-        <span>Semester Subjects</span>
+        <span data-i18n="tab_semester">Semester Subjects</span>
       </button>
     </nav>
 
@@ -115,18 +121,19 @@
             id="search-input" 
             class="search-input" 
             placeholder="Search subject or content..." 
+            data-i18n-placeholder="search_placeholder"
             oninput="handleSearch(event)"
           />
         </div>
 
         <div class="control-actions">
-          <button class="btn btn-outline btn-sm" onclick="expandAll()" title="Expand all subjects and contents">
+          <button class="btn btn-outline btn-sm" onclick="expandAll()" data-i18n-title="expand_all" title="Expand all subjects and contents">
             <span class="material-symbols-rounded icon-sm">unfold_more</span>
-            Expand All
+            <span data-i18n="expand_all">Expand All</span>
           </button>
-          <button class="btn btn-outline btn-sm" onclick="collapseAll()" title="Collapse all">
+          <button class="btn btn-outline btn-sm" onclick="collapseAll()" data-i18n-title="collapse_all" title="Collapse all">
             <span class="material-symbols-rounded icon-sm">unfold_less</span>
-            Collapse All
+            <span data-i18n="collapse_all">Collapse All</span>
           </button>
         </div>
       </div>
@@ -135,11 +142,11 @@
       <div class="chrono-banner">
         <div class="chrono-banner-text">
           <span class="material-symbols-rounded chrono-icon">schedule</span>
-          <span><strong>Chronological Order:</strong> Subjects organized with upcoming exams at the top.</span>
+          <span><strong data-i18n="chrono_order_title">Chronological Order:</strong> <span data-i18n="chrono_order_desc">Subjects organized with upcoming exams at the top.</span></span>
         </div>
         <button class="btn btn-primary btn-sm" onclick="switchTab('semester')">
           <span class="material-symbols-rounded icon-sm">add</span>
-          Add Subject
+          <span data-i18n="add_subject_shortcut">Add Subject</span>
         </button>
       </div>
 
@@ -156,34 +163,36 @@
         <div class="form-panel">
           <h3 id="subject-form-title">
             <span class="material-symbols-rounded" style="color:var(--primary);">library_add</span>
-            Add New Subject
+            <span data-i18n="add_new_subject">Add New Subject</span>
           </h3>
           
           <form onsubmit="handleSaveSubject(event)">
             <div class="form-group">
-              <label class="form-label" for="subject-name-input">Subject Name *</label>
+              <label class="form-label" for="subject-name-input" data-i18n="subject_name_label">Subject Name *</label>
               <input 
                 type="text" 
                 id="subject-name-input" 
                 class="form-control" 
                 placeholder="e.g. Human Anatomy, Medical Physiology, Pathology..." 
+                data-i18n-placeholder="subject_name_placeholder"
                 required 
               />
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="subject-code-input">Code or Acronym (optional)</label>
+              <label class="form-label" for="subject-code-input" data-i18n="subject_code_label">Code or Acronym (optional)</label>
               <input 
                 type="text" 
                 id="subject-code-input" 
                 class="form-control" 
                 placeholder="e.g. ANAT101, PHYS101, PHARM201..." 
+                data-i18n-placeholder="subject_code_placeholder"
               />
             </div>
 
             <!-- Subject Material Symbol Icon Picker -->
             <div class="form-group">
-              <label class="form-label">Subject Icon</label>
+              <label class="form-label" data-i18n="subject_icon_label">Subject Icon</label>
               <div class="icon-palette" id="icon-palette-container">
                 <!-- Material Symbols injected by JS -->
               </div>
@@ -192,7 +201,7 @@
 
             <!-- Color Picker -->
             <div class="form-group">
-              <label class="form-label">Subject Color</label>
+              <label class="form-label" data-i18n="subject_color_label">Subject Color</label>
               <div class="color-swatches" id="color-swatches-container">
                 <!-- Swatches injected by JS -->
               </div>
@@ -201,14 +210,15 @@
             <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
               <button type="submit" id="subject-submit-btn" class="btn btn-primary" style="flex:1;">
                 <span class="material-symbols-rounded icon-sm">add</span>
-                Add Subject
+                <span data-i18n="add_subject">Add Subject</span>
               </button>
               <button 
                 type="button" 
                 id="subject-cancel-btn" 
                 class="btn btn-outline" 
                 style="display:none;" 
-                onclick="cancelEditSubject()">
+                onclick="cancelEditSubject()"
+                data-i18n="cancel_btn">
                 Cancel
               </button>
             </div>
@@ -220,7 +230,7 @@
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.25rem;">
             <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
               <span class="material-symbols-rounded" style="color:var(--primary);">view_list</span>
-              Registered Subjects for this Semester
+              <span data-i18n="registered_subjects_title">Registered Subjects for this Semester</span>
             </h3>
           </div>
           <div id="semester-subjects-list">
@@ -235,7 +245,7 @@
   <div class="modal-overlay" id="content-modal" onclick="if(event.target === this) closeContentModal()">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title" id="content-modal-title">Add Content</h3>
+        <h3 class="modal-title" id="content-modal-title" data-i18n="modal_add_content_title">Add Content</h3>
         <button class="btn-icon" onclick="closeContentModal()" title="Close modal" aria-label="Close">
           <span class="material-symbols-rounded">close</span>
         </button>
@@ -244,19 +254,20 @@
       <form onsubmit="handleSaveContentModal(event)">
         <div class="modal-body">
           <div class="form-group">
-            <label class="form-label" for="content-modal-subject-select">Subject *</label>
+            <label class="form-label" for="content-modal-subject-select" data-i18n="modal_subject_label">Subject *</label>
             <select id="content-modal-subject-select" class="form-control" required>
               <!-- Filled dynamically -->
             </select>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="content-title-input">Content Title *</label>
+            <label class="form-label" for="content-title-input" data-i18n="modal_content_title_label">Content Title *</label>
             <input 
               type="text" 
               id="content-title-input" 
               class="form-control" 
               placeholder="e.g. Cardiovascular System, Cranial Nerves..." 
+              data-i18n-placeholder="modal_content_title_placeholder"
               required 
             />
           </div>
@@ -265,34 +276,35 @@
           <div class="form-group">
             <label class="form-label" for="content-date-input">
               <span class="material-symbols-rounded icon-sm" style="color:var(--primary);">event</span>
-              Deadline / Exam Date for this Content
+              <span data-i18n="modal_exam_date_label">Deadline / Exam Date for this Content</span>
             </label>
             <input 
               type="date" 
               id="content-date-input" 
               class="form-control" 
             />
-            <small style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.25rem;">
+            <small style="font-size:0.75rem; color:var(--text-muted); display:block; margin-top:0.25rem;" data-i18n="modal_exam_date_hint">
               This date determines the chronological order on the main screen.
             </small>
           </div>
 
           <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label" for="content-notes-input">Notes or Tips (optional)</label>
+            <label class="form-label" for="content-notes-input" data-i18n="modal_notes_label">Notes or Tips (optional)</label>
             <textarea 
               id="content-notes-input" 
               class="form-control" 
               rows="3" 
               placeholder="Textbook chapters, key concepts to review..."
+              data-i18n-placeholder="modal_notes_placeholder"
             ></textarea>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline" onclick="closeContentModal()">
+          <button type="button" class="btn btn-outline" onclick="closeContentModal()" data-i18n="cancel_btn">
             Cancel
           </button>
-          <button type="submit" class="btn btn-primary">
+          <button type="submit" class="btn btn-primary" data-i18n="save_content_btn">
             Save Content
           </button>
         </div>
@@ -303,7 +315,7 @@
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- App Script -->
-  <script src="app.js"></script>
+  <!-- App Script (ES Module with i18n & Service Worker registration) -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>

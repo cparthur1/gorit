@@ -1,7 +1,11 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /**
  * Gorit - Course Content, Exams & Task Tracker
  * Design System: Material You Expressive (M3)
+ * Internationalization: Strictly pt-BR and en-US
  */
+
+import { t, getLanguage, setLanguage, applyDOMTranslations } from './js/i18n.js';
 
 // --- Vector / Symbol Helpers ---
 const PLUS_ICON = `<span class="material-symbols-rounded icon-sm">add</span>`;
@@ -97,7 +101,8 @@ function parseLocalDate(dateStr) {
 function formatDate(dateStr) {
   const d = parseLocalDate(dateStr);
   if (!d) return '';
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const lang = getLanguage();
+  return d.toLocaleDateString(lang, { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function getExamStatus(dateStr) {
@@ -116,7 +121,7 @@ function getExamStatus(dateStr) {
       type: 'past',
       icon: 'history',
       badgeClass: 'exam-past',
-      text: passed === 1 ? 'Passed yesterday' : `${passed} days ago`,
+      text: passed === 1 ? t('passed_yesterday') : t('days_ago', { days: passed }),
       days: diffDays
     };
   } else if (diffDays === 0) {
@@ -124,7 +129,7 @@ function getExamStatus(dateStr) {
       type: 'urgent',
       icon: 'priority_high',
       badgeClass: 'exam-urgent',
-      text: 'Exam Today!',
+      text: t('exam_today'),
       days: 0
     };
   } else if (diffDays === 1) {
@@ -132,7 +137,7 @@ function getExamStatus(dateStr) {
       type: 'urgent',
       icon: 'warning',
       badgeClass: 'exam-urgent',
-      text: 'Exam Tomorrow!',
+      text: t('exam_tomorrow'),
       days: 1
     };
   } else if (diffDays <= 3) {
@@ -140,7 +145,7 @@ function getExamStatus(dateStr) {
       type: 'urgent',
       icon: 'alarm',
       badgeClass: 'exam-urgent',
-      text: `Exam in ${diffDays} days (${formatDate(dateStr)})`,
+      text: `${t('exam_in_days', { days: diffDays })} (${formatDate(dateStr)})`,
       days: diffDays
     };
   } else if (diffDays <= 7) {
@@ -148,7 +153,7 @@ function getExamStatus(dateStr) {
       type: 'soon',
       icon: 'event',
       badgeClass: 'exam-soon',
-      text: `Exam in ${diffDays} days (${formatDate(dateStr)})`,
+      text: `${t('exam_in_days', { days: diffDays })} (${formatDate(dateStr)})`,
       days: diffDays
     };
   } else {
@@ -156,7 +161,7 @@ function getExamStatus(dateStr) {
       type: 'future',
       icon: 'event',
       badgeClass: 'exam-future',
-      text: `Exam in ${diffDays} days (${formatDate(dateStr)})`,
+      text: `${t('exam_in_days', { days: diffDays })} (${formatDate(dateStr)})`,
       days: diffDays
     };
   }
@@ -369,7 +374,7 @@ function updateAutosaveBadge(status, timestamp) {
   dot.className = 'autosave-dot';
   if (status === 'saving') {
     dot.classList.add('saving');
-    text.textContent = 'Saving to device...';
+    text.textContent = t('saving_device');
     badge.title = 'Writing changes to local server storage (data.json)...';
   } else if (status === 'saved') {
     if (timestamp) lastSavedTimestamp = timestamp;
@@ -378,15 +383,15 @@ function updateAutosaveBadge(status, timestamp) {
       const d = new Date(lastSavedTimestamp);
       timeStr = ` (${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
     }
-    text.textContent = `Autosaved to device${timeStr}`;
+    text.textContent = `${t('autosaved_device')}${timeStr}`;
     badge.title = 'All changes are permanently saved locally on the hosting device (server.py)';
   } else if (status === 'offline') {
     dot.classList.add('offline');
-    text.textContent = 'Saved locally (browser)';
+    text.textContent = t('saved_locally_browser');
     badge.title = 'Running offline or directly via file://. Changes saved in browser storage.';
   } else if (status === 'error') {
     dot.classList.add('error');
-    text.textContent = 'Autosave error';
+    text.textContent = t('autosave_error');
     badge.title = 'Could not reach server.py. Please verify the server is running.';
   }
 }
@@ -427,10 +432,6 @@ async function syncToServer() {
   }
 }
 
-/**
- * Main autosave entrypoint for every interaction in Gorit.
- * Updates browser localStorage immediately and continuously syncs to server.py.
- */
 function saveToStorage(immediate = true) {
   // 1. Instant local storage write
   try {
@@ -542,100 +543,75 @@ function loadSampleData(notify = true) {
     return `${yyyy}-${mm}-${dd}`;
   }
 
+  const isPt = getLanguage() === 'pt-BR';
+
   state.subjects = [
     {
       id: 'sub-anat',
-      name: 'Human Anatomy & Embryology',
+      name: isPt ? 'Anatomia Humana & Embriologia' : 'Human Anatomy & Embryology',
       icon: 'cardiology',
       color: '#ef4444',
       code: 'ANAT101',
       contents: [
         {
           id: 'c-anat-1',
-          title: 'Cardiovascular & Respiratory Systems',
+          title: isPt ? 'Sistemas Cardiovascular & Respiratório' : 'Cardiovascular & Respiratory Systems',
           examDate: getRelDate(3),
-          notes: 'Coronary vessels, heart chambers, and lung bronchopulmonary segments.',
+          notes: isPt ? 'Vasos coronários, câmaras cardíacas e segmentos broncopulmonares.' : 'Coronary vessels, heart chambers, and lung bronchopulmonary segments.',
           todos: [
-            { id: 't1', title: 'Review coronary circulation and cardiac valves', completed: true },
-            { id: 't2', title: 'Dissect thoracic cavity and trace pulmonary veins', completed: true },
-            { id: 't3', title: 'Study bronchial tree and innervation', completed: false },
-            { id: 't4', title: 'Review 3D anatomy atlas flashcards', completed: false }
+            { id: 't1', title: isPt ? 'Revisar circulação coronariana e valvas cardíacas' : 'Review coronary circulation and cardiac valves', completed: true },
+            { id: 't2', title: isPt ? 'Dissecação da cavidade torácica e trajeto venoso' : 'Dissect thoracic cavity and trace pulmonary veins', completed: true },
+            { id: 't3', title: isPt ? 'Estudar árvore brônquica e inervação' : 'Study bronchial tree and innervation', completed: false },
+            { id: 't4', title: isPt ? 'Revisar flashcards do atlas anatômico 3D' : 'Review 3D anatomy atlas flashcards', completed: false }
           ]
         },
         {
           id: 'c-anat-2',
-          title: 'Cranial Nerves & Head/Neck Anatomy',
+          title: isPt ? 'Nervos Cranianos & Anatomia de Cabeça/Pescoço' : 'Cranial Nerves & Head/Neck Anatomy',
           examDate: getRelDate(25),
-          notes: 'Foramina, functional components, and lesion localizations.',
+          notes: isPt ? 'Forames da base do crânio, componentes funcionais e lesões.' : 'Foramina, functional components, and lesion localizations.',
           todos: [
-            { id: 't5', title: 'Memorize cranial exit foramina for CN I-XII', completed: false },
-            { id: 't6', title: 'Map parasympathetic ganglia of the head', completed: false }
+            { id: 't5', title: isPt ? 'Memorizar forames de saída dos pares cranianos I-XII' : 'Memorize cranial exit foramina for CN I-XII', completed: false },
+            { id: 't6', title: isPt ? 'Mapear gânglios parassimpáticos cefálicos' : 'Map parasympathetic ganglia of the head', completed: false }
           ]
         }
       ]
     },
     {
       id: 'sub-phys',
-      name: 'Medical Physiology',
+      name: isPt ? 'Fisiologia Médica' : 'Medical Physiology',
       icon: 'psychology',
       color: '#3b82f7',
       code: 'PHYS101',
       contents: [
         {
           id: 'c-phys-1',
-          title: 'Renal Physiology & Acid-Base Balance',
+          title: isPt ? 'Fisiologia Renal & Equilíbrio Ácido-Base' : 'Renal Physiology & Acid-Base Balance',
           examDate: getRelDate(7),
-          notes: 'Glomerular filtration rate, countercurrent multiplication, Davenport diagram.',
+          notes: isPt ? 'Taxa de filtração glomerular, mecanismo contracorrente e Davenport.' : 'Glomerular filtration rate, countercurrent multiplication, Davenport diagram.',
           todos: [
-            { id: 't7', title: 'Calculate GFR and clearance formulas', completed: true },
-            { id: 't8', title: 'Solve arterial blood gas practice problems', completed: false },
-            { id: 't9', title: 'Review renin-angiotensin-aldosterone feedback', completed: false }
-          ]
-        },
-        {
-          id: 'c-phys-2',
-          title: 'Endocrine Regulation & Metabolism',
-          examDate: getRelDate(35),
-          notes: 'HPA axis, thyroid hormones, and glucose homeostasis.',
-          todos: [
-            { id: 't10', title: 'Diagram hypothalamic releasing hormones and feedback loops', completed: false }
+            { id: 't7', title: isPt ? 'Calcular fórmulas de TFG e clearance renal' : 'Calculate GFR and clearance formulas', completed: true },
+            { id: 't8', title: isPt ? 'Resolver questões de gasometria arterial' : 'Solve arterial blood gas practice problems', completed: false },
+            { id: 't9', title: isPt ? 'Revisar eixo renina-angiotensina-aldosterona' : 'Review renin-angiotensin-aldosterone feedback', completed: false }
           ]
         }
       ]
     },
     {
       id: 'sub-pharm',
-      name: 'Medical Pharmacology',
+      name: isPt ? 'Farmacologia Médica' : 'Medical Pharmacology',
       icon: 'medication',
       color: '#10b981',
       code: 'PHARM201',
       contents: [
         {
           id: 'c-pharm-1',
-          title: 'Autonomic & Cardiovascular Drugs',
+          title: isPt ? 'Drogas Autonômicas & Cardiovasculares' : 'Autonomic & Cardiovascular Drugs',
           examDate: getRelDate(14),
-          notes: 'Beta-blockers, ACE inhibitors, calcium channel blockers.',
+          notes: isPt ? 'Beta-bloqueadores, IECA e bloqueadores de canal de cálcio.' : 'Beta-blockers, ACE inhibitors, calcium channel blockers.',
           todos: [
-            { id: 't11', title: 'Chart adrenergic receptors (alpha-1, alpha-2, beta-1, beta-2)', completed: true },
-            { id: 't12', title: 'Compare side effect profiles of antiarrhythmics', completed: false }
-          ]
-        }
-      ]
-    },
-    {
-      id: 'sub-path',
-      name: 'General Pathology',
-      icon: 'science',
-      color: '#8b5cf6',
-      code: 'PATH201',
-      contents: [
-        {
-          id: 'c-path-1',
-          title: 'Cellular Injury & Hemodynamic Disorders',
-          examDate: getRelDate(21),
-          notes: 'Apoptosis vs necrosis patterns, thrombosis and embolism.',
-          todos: [
-            { id: 't13', title: 'Review histological markers of coagulative necrosis', completed: false }
+            { id: 't11', title: isPt ? 'Tabela comparativa de receptores adrenérgicos' : 'Chart adrenergic receptors (alpha-1, alpha-2, beta-1, beta-2)', completed: true },
+            { id: 't12', title: isPt ? 'Comparar efeitos colaterais de antiarrítmicos' : 'Compare side effect profiles of antiarrhythmics', completed: false }
           ]
         }
       ]
@@ -647,7 +623,7 @@ function loadSampleData(notify = true) {
 
   saveToStorage();
   renderApp();
-  if (notify) showToast('Sample courses loaded successfully!');
+  if (notify) showToast(t('toast_sample_loaded'));
 }
 
 // --- Toast Notifications ---
@@ -704,25 +680,31 @@ function renderStats() {
   const nextExamEl = document.getElementById('stat-next-exam');
 
   if (subjectsEl) subjectsEl.textContent = stats.totalSubjects;
-  if (contentsEl) contentsEl.textContent = `${stats.totalContents} ${stats.totalContents === 1 ? 'content' : 'contents'}`;
+  if (contentsEl) {
+    contentsEl.textContent = stats.totalContents === 1 
+      ? t('stat_content_count_singular') 
+      : t('stat_contents_count', { count: stats.totalContents });
+  }
   if (progressEl) {
-    const todoRatio = stats.totalTodos > 0 ? `(${stats.completedTodos}/${stats.totalTodos})` : '(0 items)';
+    const todoRatio = stats.totalTodos > 0 
+      ? `(${t('tasks_ratio', { completed: stats.completedTodos, total: stats.totalTodos })})` 
+      : '(0)';
     progressEl.innerHTML = `${stats.percent}% <span style="font-size:0.75rem; font-weight:normal; color:var(--text-muted);">${todoRatio}</span>`;
   }
   if (nextExamEl) {
     if (stats.nextExam) {
       let icon = 'event';
-      let daysText = `in ${stats.nextExam.days} days`;
+      let daysText = t('stat_in_days', { days: stats.nextExam.days });
       if (stats.nextExam.days === 0) {
         icon = 'priority_high';
-        daysText = 'Today!';
+        daysText = t('stat_today');
       } else if (stats.nextExam.days === 1) {
         icon = 'warning';
-        daysText = 'Tomorrow';
+        daysText = t('stat_tomorrow');
       }
       nextExamEl.innerHTML = `<span class="material-symbols-rounded icon-sm" style="color:var(--primary); vertical-align:middle; margin-right:3px;">${icon}</span><strong>${daysText}</strong> <span class="stat-hint">(${escapeHtml(stats.nextExam.subjectName)})</span>`;
     } else {
-      nextExamEl.innerHTML = `<span style="color:var(--text-muted); font-size: 0.9rem;">None scheduled</span>`;
+      nextExamEl.innerHTML = `<span style="color:var(--text-muted); font-size: 0.9rem;">${t('stat_none_scheduled')}</span>`;
     }
   }
 }
@@ -748,15 +730,15 @@ function renderStudiesView() {
       container.innerHTML = `
         <div class="empty-state">
           <span class="material-symbols-rounded empty-state-icon">menu_book</span>
-          <h3 class="empty-state-title">No subjects registered yet</h3>
-          <p class="empty-state-desc">Add your semester subjects to start organizing course contents, exam deadlines, and tasks.</p>
+          <h3 class="empty-state-title">${t('no_subjects_title')}</h3>
+          <p class="empty-state-desc">${t('no_subjects_desc')}</p>
           <div style="display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="switchTab('semester')">
-              ${PLUS_ICON} Add Semester Subject
+              ${PLUS_ICON} ${t('add_subject')}
             </button>
             <button class="btn btn-outline" onclick="loadSampleData(true)">
               <span class="material-symbols-rounded icon-sm">school</span>
-              Load Sample Courses
+              ${t('load_sample_courses')}
             </button>
           </div>
         </div>
@@ -765,9 +747,9 @@ function renderStudiesView() {
       container.innerHTML = `
         <div class="empty-state">
           <span class="material-symbols-rounded empty-state-icon">search_off</span>
-          <h3 class="empty-state-title">No content found</h3>
-          <p class="empty-state-desc">No subjects or contents match "${escapeHtml(state.searchQuery)}".</p>
-          <button class="btn btn-secondary btn-sm" onclick="clearSearch()">Clear Search</button>
+          <h3 class="empty-state-title">${t('no_search_results_title')}</h3>
+          <p class="empty-state-desc">${t('no_search_results_desc', { query: escapeHtml(state.searchQuery) })}</p>
+          <button class="btn btn-secondary btn-sm" onclick="clearSearch()">${t('clear_search')}</button>
         </div>
       `;
     }
@@ -793,36 +775,36 @@ function renderStudiesView() {
       `;
     } else if (examInfo.latestPast) {
       nextExamBadgeHtml = `
-        <span class="exam-badge exam-past" title="Last exam completed">
+        <span class="exam-badge exam-past" title="${t('no_upcoming_exams')}">
           <span class="material-symbols-rounded">history</span>
-          No upcoming exams
+          ${t('no_upcoming_exams')}
         </span>
       `;
     } else {
       nextExamBadgeHtml = `
         <span class="exam-badge exam-past">
           <span class="material-symbols-rounded">event_busy</span>
-          No exams scheduled
+          ${t('no_exams_scheduled')}
         </span>
       `;
     }
 
     const color = subject.color || '#3b82f7';
-    let progressText = '0% (no contents)';
+    let progressText = t('no_contents_yet');
     if (subProgress.contentsCount > 0) {
       if (subProgress.hasAnyTodos) {
-        progressText = `${subProgress.percent}% (${subProgress.completed}/${subProgress.total} tasks)`;
+        progressText = `${subProgress.percent}% (${t('tasks_ratio', { completed: subProgress.completed, total: subProgress.total })})`;
       } else {
-        progressText = `${subProgress.percent}% (${subProgress.completed}/${subProgress.total} completed)`;
+        progressText = `${subProgress.percent}% (${t('completed_ratio', { completed: subProgress.completed, total: subProgress.total })})`;
       }
     }
 
     let subjectCompletedBadge = '';
     if (subProgress.percent === 100 && subProgress.total > 0) {
       subjectCompletedBadge = `
-        <span class="exam-badge exam-completed" title="All contents in this subject completed!">
+        <span class="exam-badge exam-completed" title="All contents completed!">
           <span class="material-symbols-rounded">check_circle</span>
-          Completed
+          ${t('completed_badge')}
         </span>
       `;
     }
@@ -844,7 +826,7 @@ function renderStudiesView() {
           <div class="subject-info">
             <div class="subject-title-row">
               <div class="subject-name">
-                ${subIndex === 0 && examInfo.nearestUpcoming ? '<span class="first-in-line-badge" title="Next upcoming exam of the semester!"><span class="material-symbols-rounded">grade</span> 1st in line</span>' : ''}
+                ${subIndex === 0 && examInfo.nearestUpcoming ? `<span class="first-in-line-badge" title="${t('next_upcoming_exam_tooltip')}"><span class="material-symbols-rounded">grade</span> ${t('first_in_line')}</span>` : ''}
                 ${escapeHtml(subject.name)}
                 ${subject.code ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHtml(subject.code)})</span>` : ''}
               </div>
@@ -875,17 +857,17 @@ function renderStudiesView() {
           <div class="contents-header-bar">
             <div class="contents-count-text">
               <span class="material-symbols-rounded">folder</span>
-              Contents (${(subject.contents || []).length})
+              ${t('contents_header', { count: (subject.contents || []).length })}
             </div>
             <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
               ${(subject.contents || []).length > 0 ? `
-                <button class="btn btn-outline btn-sm" onclick="toggleAllSubjectContents('${subject.id}', event)" title="Toggle all contents in this subject as completed or pending">
+                <button class="btn btn-outline btn-sm" onclick="toggleAllSubjectContents('${subject.id}', event)" title="${t('toggle_all_tooltip')}">
                   <span class="material-symbols-rounded icon-sm">${isSubjectAllDone(subject) ? 'restart_alt' : 'done_all'}</span>
-                  ${isSubjectAllDone(subject) ? 'Reset All' : 'Complete All'}
+                  ${isSubjectAllDone(subject) ? t('reset_all') : t('complete_all')}
                 </button>
               ` : ''}
               <button class="btn btn-primary btn-sm" onclick="openAddContentModal('${subject.id}', event)">
-                ${PLUS_ICON} Add Content
+                ${PLUS_ICON} ${t('add_content')}
               </button>
             </div>
           </div>
@@ -913,9 +895,9 @@ function renderContentsList(subject) {
   if (contents.length === 0) {
     return `
       <div style="text-align: center; padding: 1.5rem; background: var(--bg-surface); border-radius: var(--radius-md); border: 1px dashed var(--border-color);">
-        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.6rem;">No contents added to this subject yet.</p>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.6rem;">${t('no_contents_in_subject')}</p>
         <button class="btn btn-secondary btn-sm" onclick="openAddContentModal('${subject.id}', event)">
-          ${PLUS_ICON} Add 1st Content
+          ${PLUS_ICON} ${t('add_first_content')}
         </button>
       </div>
     `;
@@ -943,9 +925,9 @@ function renderContentsList(subject) {
       `;
     } else {
       examBadgeHtml = `
-        <span class="exam-badge exam-past" title="Click calendar to set exam date">
+        <span class="exam-badge exam-past" title="${t('click_calendar_set_date')}">
           <span class="material-symbols-rounded">event_available</span>
-          No date set
+          ${t('no_date_set')}
         </span>
       `;
     }
@@ -953,7 +935,7 @@ function renderContentsList(subject) {
     const datePickerHtml = `
       <div class="content-date-wrapper" onclick="event.stopPropagation()">
         ${examBadgeHtml}
-        <label class="date-picker-trigger" title="Change exam deadline (autosaves)">
+        <label class="date-picker-trigger" title="${t('change_exam_deadline')}">
           <span class="material-symbols-rounded">calendar_today</span>
           <input 
             type="date" 
@@ -968,12 +950,12 @@ function renderContentsList(subject) {
     let contentProgressText = '';
     if (progress.hasTodos) {
       contentProgressText = isCompleted
-        ? `${progress.percent}% (${progress.completed}/${progress.total} tasks) • Completed`
-        : `${progress.percent}% (${progress.completed}/${progress.total} tasks)`;
+        ? `${progress.percent}% (${t('tasks_ratio', { completed: progress.completed, total: progress.total })}) • ${t('completed_badge')}`
+        : `${progress.percent}% (${t('tasks_ratio', { completed: progress.completed, total: progress.total })})`;
     } else {
       contentProgressText = isCompleted
-        ? `100% • Completed`
-        : `0% • Pending`;
+        ? `100% • ${t('completed_badge')}`
+        : `0% • ${t('mark_as_pending')}`;
     }
 
     return `
@@ -982,7 +964,7 @@ function renderContentsList(subject) {
         <div class="content-item-header" onclick="toggleContent('${content.id}', event)">
           <div class="content-header-main">
             <!-- Whole Content Completion Checkbox -->
-            <div class="content-check-wrap" onclick="event.stopPropagation()" title="${isCompleted ? 'Mark content as pending' : 'Check whole content as completed'}">
+            <div class="content-check-wrap" onclick="event.stopPropagation()" title="${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}">
               <input 
                 type="checkbox" 
                 class="content-checkbox" 
@@ -1000,7 +982,7 @@ function renderContentsList(subject) {
                 <div class="content-title">
                   <span class="material-symbols-rounded content-status-icon ${isCompleted ? 'done' : ''}">${isCompleted ? 'check_circle' : 'radio_button_unchecked'}</span>
                   <span class="content-title-text ${isCompleted ? 'completed' : ''}">${escapeHtml(content.title)}</span>
-                  ${isCompleted ? '<span class="content-completed-badge"><span class="material-symbols-rounded">check</span> Completed</span>' : ''}
+                  ${isCompleted ? `<span class="content-completed-badge"><span class="material-symbols-rounded">check</span> ${t('completed_badge')}</span>` : ''}
                 </div>
                 <div>
                   ${datePickerHtml}
@@ -1020,10 +1002,10 @@ function renderContentsList(subject) {
           </div>
 
           <div class="content-header-actions">
-            <button class="btn-icon btn-sm" title="Edit Content" onclick="openEditContentModal('${subject.id}', '${content.id}', event)" style="width:30px; height:30px;">
+            <button class="btn-icon btn-sm" title="${t('edit_content')}" onclick="openEditContentModal('${subject.id}', '${content.id}', event)" style="width:30px; height:30px;">
               <span class="material-symbols-rounded icon-sm">edit</span>
             </button>
-            <button class="btn-icon btn-sm" title="Delete Content" onclick="deleteContent('${subject.id}', '${content.id}', event)" style="width:30px; height:30px;">
+            <button class="btn-icon btn-sm" title="${t('delete_content')}" onclick="deleteContent('${subject.id}', '${content.id}', event)" style="width:30px; height:30px;">
               <span class="material-symbols-rounded icon-sm">delete</span>
             </button>
             <div class="content-chevron">
@@ -1040,16 +1022,16 @@ function renderContentsList(subject) {
               type="button" 
               class="btn ${isCompleted ? 'btn-outline' : 'btn-success-soft'} btn-sm" 
               onclick="toggleContentCompleted('${subject.id}', '${content.id}', ${!isCompleted}, event)"
-              title="${isCompleted ? 'Mark content as pending' : 'Check whole content and all its tasks as completed'}">
+              title="${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}">
               <span class="material-symbols-rounded icon-sm">${isCompleted ? 'restart_alt' : 'check'}</span>
-              ${isCompleted ? 'Mark as Pending' : 'Check as Completed'}
+              ${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}
             </button>
             
             <div class="content-drawer-status-summary">
               <span class="material-symbols-rounded icon-sm">checklist</span>
               ${hasTodos 
-                ? `<span>${completedTodosCount}/${totalTodosCount} tasks completed (${progress.percent}%)</span>` 
-                : `<span>${isCompleted ? 'Content topic completed' : 'Content topic (mark complete above)'}</span>`
+                ? `<span>${t('tasks_progress_summary', { completed: completedTodosCount, total: totalTodosCount, percent: progress.percent })}</span>` 
+                : `<span>${isCompleted ? t('topic_completed_summary') : t('topic_pending_summary')}</span>`
               }
             </div>
           </div>
@@ -1058,14 +1040,14 @@ function renderContentsList(subject) {
             <div class="content-notes-header">
               <div class="content-notes-header-left">
                 <span class="material-symbols-rounded">lightbulb</span>
-                <span>Notes &amp; Tips</span>
+                <span>${t('notes_and_tips')}</span>
               </div>
               <span class="autosave-micro-hint" id="hint-notes-${content.id}">autosaved</span>
             </div>
             <textarea 
               class="content-notes-textarea" 
               id="textarea-notes-${content.id}"
-              placeholder="Add notes, textbook chapters, formulas (autosaves as you type)..."
+              placeholder="${t('notes_placeholder')}"
               rows="2"
               oninput="handleInlineNotesInput('${subject.id}', '${content.id}', this.value)"
               onblur="handleInlineNotesBlur('${subject.id}', '${content.id}', this.value)"
@@ -1082,11 +1064,11 @@ function renderContentsList(subject) {
               type="text" 
               class="add-todo-input" 
               id="input-todo-${content.id}"
-              placeholder="Add task (e.g. Read chapter 2, Flashcards, Practice questions...)" 
+              placeholder="${t('add_task_placeholder')}" 
               autocomplete="off"
             />
             <button type="submit" class="btn btn-primary btn-sm">
-              ${PLUS_ICON} Task
+              ${PLUS_ICON} ${t('add_task_btn')}
             </button>
           </form>
         </div>
@@ -1099,7 +1081,7 @@ function renderContentsList(subject) {
 function renderTodos(subjectId, content) {
   const todos = content.todos || [];
   if (todos.length === 0) {
-    return `<div style="font-size:0.82rem; color:var(--text-muted); padding:0.4rem 0;">No tasks added yet. Type below and press Enter to add a task!</div>`;
+    return `<div style="font-size:0.82rem; color:var(--text-muted); padding:0.4rem 0;">${t('no_tasks_placeholder')}</div>`;
   }
 
   return todos.map(todo => {
@@ -1115,12 +1097,12 @@ function renderTodos(subjectId, content) {
           class="todo-text" 
           contenteditable="true" 
           spellcheck="false"
-          title="Click to edit task (autosaves)"
+          title="${t('click_to_edit_task')}"
           onblur="handleTodoTitleBlur('${subjectId}', '${content.id}', '${todo.id}', this)"
           onkeydown="handleTodoTitleKeydown(event, this)">${escapeHtml(todo.title)}</span>
         <button 
           class="todo-delete-btn" 
-          title="Delete task" 
+          title="${t('delete_task')}" 
           onclick="deleteTodo('${subjectId}', '${content.id}', '${todo.id}', event)">
           <span class="material-symbols-rounded">close</span>
         </button>
@@ -1138,8 +1120,8 @@ function renderSemesterView() {
     container.innerHTML = `
       <div class="empty-state">
         <span class="material-symbols-rounded empty-state-icon">school</span>
-        <h4 class="empty-state-title">No subjects added yet</h4>
-        <p class="empty-state-desc">Use the form on the left to register your first semester subject with a custom name, icon, and color.</p>
+        <h4 class="empty-state-title">${t('no_subjects_title')}</h4>
+        <p class="empty-state-desc">${t('no_subjects_manage_desc')}</p>
       </div>
     `;
     return;
@@ -1150,9 +1132,9 @@ function renderSemesterView() {
     const progress = getSubjectProgress(subject);
     const examInfo = getSubjectNextExam(subject);
 
-    let examDateText = 'No date set';
+    let examDateText = t('no_date_set');
     if (examInfo.nearestUpcoming) {
-      examDateText = `Next exam in ${examInfo.nearestUpcoming.days} days (${formatDate(examInfo.nearestUpcoming.dateStr)})`;
+      examDateText = `${t('exam_in_days', { days: examInfo.nearestUpcoming.days })} (${formatDate(examInfo.nearestUpcoming.dateStr)})`;
     }
 
     const symbol = getSubjectSymbol(subject);
@@ -1169,7 +1151,7 @@ function renderSemesterView() {
               ${subject.code ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHtml(subject.code)})</span>` : ''}
             </div>
             <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.2rem; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-              <span>${progress.contentsCount} contents</span> • 
+              <span>${t('stat_contents_count', { count: progress.contentsCount })}</span> • 
               <span>${progress.percent}% (${progress.completed}/${progress.total} ${progress.hasAnyTodos ? 'tasks' : 'contents'})</span> • 
               <span>${examDateText}</span>
             </div>
@@ -1178,15 +1160,15 @@ function renderSemesterView() {
 
         <div style="display:flex; align-items:center; gap:0.45rem;">
           <button class="btn btn-secondary btn-sm" onclick="openAddContentModal('${subject.id}')">
-            ${PLUS_ICON} Content
+            ${PLUS_ICON} ${t('content_btn')}
           </button>
           <button class="btn btn-outline btn-sm" onclick="editSubject('${subject.id}')">
             <span class="material-symbols-rounded icon-sm">edit</span>
-            Edit
+            ${t('edit_btn')}
           </button>
           <button class="btn btn-danger btn-sm" onclick="deleteSubject('${subject.id}')">
             <span class="material-symbols-rounded icon-sm">delete</span>
-            Delete
+            ${t('delete_btn')}
           </button>
         </div>
       </div>
@@ -1300,14 +1282,14 @@ function expandAll() {
     (s.contents || []).forEach(c => state.expandedContentIds.add(c.id));
   });
   renderStudiesView();
-  showToast('All items expanded.');
+  showToast(t('toast_all_expanded'));
 }
 
 function collapseAll() {
   state.expandedSubjectIds.clear();
   state.expandedContentIds.clear();
   renderStudiesView();
-  showToast('All items collapsed.');
+  showToast(t('toast_all_collapsed'));
 }
 
 // --- Tab Switching ---
@@ -1329,6 +1311,36 @@ function switchTab(tabName) {
   }
 }
 
+// --- Language Management ---
+function updateLanguageUI() {
+  const currentLang = getLanguage();
+  const labelEl = document.getElementById('current-lang-label');
+  if (labelEl) {
+    labelEl.textContent = currentLang === 'pt-BR' ? 'PT' : 'EN';
+  }
+
+  const pageTitle = document.getElementById('app-page-title');
+  if (pageTitle) {
+    pageTitle.textContent = `${t('app_name')} - ${t('app_tagline')}`;
+  }
+
+  const pageDesc = document.getElementById('app-page-desc');
+  if (pageDesc) {
+    pageDesc.setAttribute('content', t('app_description'));
+  }
+
+  applyDOMTranslations();
+}
+
+function toggleLanguage() {
+  const current = getLanguage();
+  const next = current === 'pt-BR' ? 'en-US' : 'pt-BR';
+  setLanguage(next);
+  updateLanguageUI();
+  renderApp();
+  showToast(next === 'pt-BR' ? 'Idioma alterado para Português (Brasil)' : 'Language switched to English (US)');
+}
+
 // --- Subject CRUD ---
 function handleSaveSubject(event) {
   event.preventDefault();
@@ -1337,7 +1349,7 @@ function handleSaveSubject(event) {
 
   const name = nameInput.value.trim();
   if (!name) {
-    alert('Please enter a subject name.');
+    alert(t('alert_enter_subject_name'));
     return;
   }
 
@@ -1354,14 +1366,14 @@ function handleSaveSubject(event) {
       subject.emoji = icon;
       subject.color = color;
       subject.code = code;
-      showToast(`Subject "${name}" updated successfully!`);
+      showToast(t('toast_subject_updated', { name }));
     }
     state.editingSubjectId = null;
     document.getElementById('subject-form-title').innerHTML = `
       <span class="material-symbols-rounded" style="color:var(--primary);">library_add</span>
-      Add New Subject
+      <span>${t('add_new_subject')}</span>
     `;
-    document.getElementById('subject-submit-btn').innerHTML = `${PLUS_ICON} Add Subject`;
+    document.getElementById('subject-submit-btn').innerHTML = `${PLUS_ICON} ${t('add_subject')}`;
     document.getElementById('subject-cancel-btn').style.display = 'none';
   } else {
     // Create new subject
@@ -1375,7 +1387,7 @@ function handleSaveSubject(event) {
       contents: []
     };
     state.subjects.push(newSubject);
-    showToast(`Subject "${name}" added to semester!`);
+    showToast(t('toast_subject_added', { name }));
   }
 
   // Reset form
@@ -1399,9 +1411,9 @@ function editSubject(subjectId) {
 
   document.getElementById('subject-form-title').innerHTML = `
     <span class="material-symbols-rounded" style="color:var(--primary);">edit</span>
-    Edit Subject
+    <span>${t('edit_subject')}</span>
   `;
-  document.getElementById('subject-submit-btn').textContent = 'Save Changes';
+  document.getElementById('subject-submit-btn').textContent = t('save_changes');
   document.getElementById('subject-cancel-btn').style.display = 'inline-flex';
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1415,9 +1427,9 @@ function cancelEditSubject() {
   }
   document.getElementById('subject-form-title').innerHTML = `
     <span class="material-symbols-rounded" style="color:var(--primary);">library_add</span>
-    Add New Subject
+    <span>${t('add_new_subject')}</span>
   `;
-  document.getElementById('subject-submit-btn').innerHTML = `${PLUS_ICON} Add Subject`;
+  document.getElementById('subject-submit-btn').innerHTML = `${PLUS_ICON} ${t('add_subject')}`;
   document.getElementById('subject-cancel-btn').style.display = 'none';
 }
 
@@ -1425,14 +1437,14 @@ function deleteSubject(subjectId) {
   const subject = state.subjects.find(s => s.id === subjectId);
   if (!subject) return;
 
-  const confirmMsg = `Are you sure you want to delete "${subject.name}" and all its contents and tasks?`;
+  const confirmMsg = t('confirm_delete_subject', { name: subject.name });
   if (!confirm(confirmMsg)) return;
 
   state.subjects = state.subjects.filter(s => s.id !== subjectId);
   state.expandedSubjectIds.delete(subjectId);
   saveToStorage();
   renderApp();
-  showToast('Subject removed.');
+  showToast(t('toast_subject_removed'));
 }
 
 // --- Content CRUD ---
@@ -1449,7 +1461,7 @@ function openAddContentModal(subjectId, event) {
   }
 
   state.editingContentData = null;
-  document.getElementById('content-modal-title').textContent = 'Add Content';
+  document.getElementById('content-modal-title').textContent = t('modal_add_content_title');
   document.getElementById('content-title-input').value = '';
   document.getElementById('content-date-input').value = '';
   document.getElementById('content-notes-input').value = '';
@@ -1476,7 +1488,7 @@ function openEditContentModal(subjectId, contentId, event) {
   }
 
   state.editingContentData = { subjectId, contentId };
-  document.getElementById('content-modal-title').textContent = 'Edit Content';
+  document.getElementById('content-modal-title').textContent = t('modal_edit_content_title');
   document.getElementById('content-title-input').value = content.title;
   document.getElementById('content-date-input').value = content.examDate || '';
   document.getElementById('content-notes-input').value = content.notes || '';
@@ -1499,7 +1511,7 @@ function handleSaveContentModal(event) {
   const notes = document.getElementById('content-notes-input').value.trim();
 
   if (!title) {
-    alert('Please enter a content title.');
+    alert(t('alert_enter_content_title'));
     return;
   }
 
@@ -1525,7 +1537,7 @@ function handleSaveContentModal(event) {
         }
       }
     }
-    showToast(`Content "${title}" updated!`);
+    showToast(t('toast_content_updated', { title }));
   } else {
     // Create new content
     const targetSubject = state.subjects.find(s => s.id === subjectId);
@@ -1548,7 +1560,7 @@ function handleSaveContentModal(event) {
     // Expand subject and content so user can immediately see and add todos
     state.expandedSubjectIds.add(subjectId);
     state.expandedContentIds.add(newContent.id);
-    showToast(`Content "${title}" added!`);
+    showToast(t('toast_content_added', { title }));
   }
 
   closeContentModal();
@@ -1565,14 +1577,14 @@ function deleteContent(subjectId, contentId, event) {
   const content = (subject.contents || []).find(c => c.id === contentId);
   if (!content) return;
 
-  if (!confirm(`Are you sure you want to delete "${content.title}" and its tasks?`)) return;
+  if (!confirm(t('confirm_delete_content', { title: content.title }))) return;
 
   subject.contents = subject.contents.filter(c => c.id !== contentId);
   state.expandedContentIds.delete(contentId);
 
   saveToStorage(true);
   renderApp();
-  showToast('Content removed.');
+  showToast(t('toast_content_removed'));
 }
 
 // --- Whole Content Completion Functions ---
@@ -1599,9 +1611,9 @@ function toggleContentCompleted(subjectId, contentId, markCompleted, event) {
 
   if (targetCompleted) {
     fireCelebration();
-    showToast(`"${content.title}" marked as completed!`);
+    showToast(t('toast_content_completed', { title: content.title }));
   } else {
-    showToast(`"${content.title}" marked as pending.`);
+    showToast(t('toast_content_pending', { title: content.title }));
   }
 
   saveToStorage(true);
@@ -1631,9 +1643,9 @@ function toggleAllSubjectContents(subjectId, event) {
 
   if (targetCompleted) {
     fireCelebration();
-    showToast(`All contents in "${subject.name}" marked as completed!`);
+    showToast(t('toast_all_contents_completed', { name: subject.name }));
   } else {
-    showToast(`All contents in "${subject.name}" reset to pending.`);
+    showToast(t('toast_all_contents_reset', { name: subject.name }));
   }
 
   saveToStorage(true);
@@ -1695,7 +1707,7 @@ function toggleTodoStatus(subjectId, contentId, todoId, completed) {
   const progress = getContentProgress(content);
   if (completed && progress.percent === 100 && progress.total > 0) {
     fireCelebration();
-    showToast(`Completed all tasks for "${content.title}"!`);
+    showToast(t('toast_tasks_100_percent', { title: content.title }));
   }
 
   saveToStorage(true);
@@ -1782,7 +1794,7 @@ function handleInlineDateChange(subjectId, contentId, newDate) {
   content.examDate = newDate;
   saveToStorage(true);
   renderApp();
-  showToast(`Exam deadline updated to ${formatDate(newDate) || 'none'} (autosaved)`);
+  showToast(t('toast_deadline_updated', { date: formatDate(newDate) || 'none' }));
 }
 
 // --- Search & Filters ---
@@ -1808,7 +1820,7 @@ function exportData() {
   a.download = `gorit_backup_${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('Backup exported successfully!');
+  showToast(t('toast_backup_exported'));
 }
 
 function importData(event) {
@@ -1825,12 +1837,12 @@ function importData(event) {
         state.expandedContentIds.clear();
         saveToStorage(true);
         renderApp();
-        showToast('Data restored and autosaved to device!');
+        showToast(t('toast_data_restored'));
       } else {
-        alert('Invalid file format.');
+        alert(t('alert_invalid_json'));
       }
     } catch (err) {
-      alert('Error reading JSON file: ' + err.message);
+      alert(t('alert_error_reading_json', { error: err.message }));
     }
   };
   reader.readAsText(file);
@@ -1846,8 +1858,56 @@ function renderApp() {
   }
 }
 
+// --- Expose Global Handlers for HTML Event Attributes ---
+window.switchTab = switchTab;
+window.exportData = exportData;
+window.importData = importData;
+window.expandAll = expandAll;
+window.collapseAll = collapseAll;
+window.handleSearch = handleSearch;
+window.clearSearch = clearSearch;
+window.handleSaveSubject = handleSaveSubject;
+window.editSubject = editSubject;
+window.cancelEditSubject = cancelEditSubject;
+window.deleteSubject = deleteSubject;
+window.selectColor = selectColor;
+window.selectIcon = selectIcon;
+window.openAddContentModal = openAddContentModal;
+window.openEditContentModal = openEditContentModal;
+window.closeContentModal = closeContentModal;
+window.handleSaveContentModal = handleSaveContentModal;
+window.deleteContent = deleteContent;
+window.toggleSubject = toggleSubject;
+window.toggleContent = toggleContent;
+window.toggleContentCompleted = toggleContentCompleted;
+window.toggleAllSubjectContents = toggleAllSubjectContents;
+window.handleInlineDateChange = handleInlineDateChange;
+window.handleInlineAddTodo = handleInlineAddTodo;
+window.toggleTodoStatus = toggleTodoStatus;
+window.deleteTodo = deleteTodo;
+window.handleTodoTitleBlur = handleTodoTitleBlur;
+window.handleTodoTitleKeydown = handleTodoTitleKeydown;
+window.handleInlineNotesInput = handleInlineNotesInput;
+window.handleInlineNotesBlur = handleInlineNotesBlur;
+window.loadSampleData = loadSampleData;
+window.toggleLanguage = toggleLanguage;
+
+// --- Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => {
+        console.log('[SW] Gorit Offline Service Worker active in scope:', reg.scope);
+      })
+      .catch(err => {
+        console.warn('[SW] Service Worker registration failed:', err);
+      });
+  });
+}
+
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
+  updateLanguageUI();
   renderColorSwatches();
   renderIconPalette();
   loadFromStorage();
