@@ -5,7 +5,7 @@
  * Internationalization: Strictly pt-BR and en-US
  */
 
-import { t, getLanguage, setLanguage, applyDOMTranslations } from './js/i18n.js';
+import { t, getLanguage, setLanguage, applyDOMTranslations } from './i18n.js';
 
 // --- Vector / Symbol Helpers ---
 const PLUS_ICON = `<span class="material-symbols-rounded icon-sm">add</span>`;

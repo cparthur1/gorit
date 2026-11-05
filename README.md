@@ -1,7 +1,7 @@
 # Gorit - Semester Course Content, Exams & Task Tracker
 
 <p align="center">
-  <img src="logo.svg" alt="Gorit Logo" width="160" height="160" />
+  <img src="assets/img/logo.svg" alt="Gorit Logo" width="160" height="160" />
 </p>
 
 > Modern, intuitive, and responsive web application designed for students to organize semester subjects, course content, exam deadlines, and study to-do lists with real-time automatic progress calculation. Built with **Material You Expressive (Material Design 3)**.
@@ -117,6 +117,36 @@ Gorit is installable as a standalone desktop or mobile web application:
 - **Android:** Tap the banner or browser menu and select **Install App**.
 
 The application includes high-resolution SVG and PNG icons, maskable adaptive icons (`icon-maskable-512.png`), and a compliant `manifest.webmanifest`.
+
+---
+
+## 📁 Project Structure
+
+```text
+gorit/
+├── assets/
+│   └── img/               # Vector (SVG) & high-resolution PNG icon suite
+│       ├── logo.svg / logo.png
+│       ├── favicon.svg / favicon.png / favicon.ico
+│       ├── favicon-32x32.png / favicon-16x16.png
+│       ├── apple-touch-icon.png
+│       ├── icon-192.png / icon-512.png
+│       └── icon-maskable-192.png / icon-maskable-512.png / icon-maskable.svg
+├── css/
+│   └── styles.css         # Material You Expressive (M3) design tokens and styles
+├── js/
+│   ├── app.js             # Core reactive application engine and storage sync
+│   └── i18n.js            # Internationalization engine (pt-BR and en-US)
+├── backups/               # Automated user data backup snapshots
+├── index.html             # Application entry point
+├── server.py              # Multi-mode HTTP server (Local / LAN / Cloudflare)
+├── sw.js                  # PWA offline cache service worker
+├── data.json              # Local persistent database
+├── manifest.webmanifest   # PWA application manifest
+├── LICENSE                # GPL-2.0 License
+├── DCO.txt                # Developer Certificate of Origin 1.1
+└── .nojekyll              # GitHub Pages Jekyll bypass flag
+```
 
 ---
 
