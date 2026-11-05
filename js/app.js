@@ -397,44 +397,10 @@ let hasPendingServerSync = false;
 let autosaveDebounceTimer = null;
 let lastSavedTimestamp = null;
 
-function updateAutosaveBadge(status, timestamp) {
-  const badge = document.getElementById('autosave-badge');
-  const dot = document.getElementById('autosave-dot');
-  const text = document.getElementById('autosave-text');
-  if (!badge || !dot || !text) return;
-
-  dot.className = 'autosave-dot';
-  if (status === 'saving') {
-    dot.classList.add('saving');
-    text.textContent = t('saving_device');
-    badge.title = 'Writing changes to local server storage (data.json)...';
-  } else if (status === 'cloud') {
-    dot.classList.add('active');
-    if (timestamp) lastSavedTimestamp = timestamp;
-    let timeStr = '';
-    if (lastSavedTimestamp) {
-      const d = new Date(lastSavedTimestamp);
-      timeStr = ` (${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
-    }
-    text.textContent = `${t('autosaved_cloud')}${timeStr}`;
-    badge.title = 'Sincronizado automaticamente com a nuvem Flashcards (PRO)';
-  } else if (status === 'saved') {
-    if (timestamp) lastSavedTimestamp = timestamp;
-    let timeStr = '';
-    if (lastSavedTimestamp) {
-      const d = new Date(lastSavedTimestamp);
-      timeStr = ` (${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
-    }
-    text.textContent = `${t('autosaved_device')}${timeStr}`;
-    badge.title = 'All changes are permanently saved locally on the hosting device (server.py)';
-  } else if (status === 'offline') {
-    dot.classList.add('offline');
-    text.textContent = t('saved_locally_browser');
-    badge.title = 'Running offline or directly via file://. Changes saved in browser storage.';
-  } else if (status === 'error') {
-    dot.classList.add('error');
-    text.textContent = t('autosave_error');
-    badge.title = 'Could not reach server.py. Please verify the server is running.';
+// Hopeful model: assume success silently; only notify when an operation fails
+function updateAutosaveBadge(status) {
+  if (status === 'error') {
+    showToast(t('autosave_error'), 'danger');
   }
 }
 
@@ -444,7 +410,6 @@ async function syncToServer() {
     return;
   }
   isSyncingToServer = true;
-  updateAutosaveBadge('saving');
 
   try {
     const payload = JSON.stringify(state.subjects);
@@ -460,31 +425,25 @@ async function syncToServer() {
       throw new Error(`Server returned status ${res.status}`);
     }
 
-    const data = await res.json();
-    const savedTime = data.saved_at || new Date().toISOString();
-    updateAutosaveBadge('saved', savedTime);
-
-    // If user is PRO, also push to Cloud Firestore
+    // If user is PRO, also push to Cloud Firestore silently
     if (state.currentUser && state.isPro) {
       saveGoritToCloud(state.subjects).then(cloudRes => {
         if (cloudRes && cloudRes.success) {
           state.lastCloudSync = cloudRes.timestamp;
-          updateAutosaveBadge('cloud', cloudRes.timestamp);
         }
       }).catch(err => {
         console.warn('[Gorit Cloud] Sync warning:', err);
       });
     }
   } catch (err) {
-    console.warn('Autosave to server failed (using browser offline storage):', err.message);
-    updateAutosaveBadge('offline');
+    // Graceful offline fallback - silently keep browser storage safe
+    console.warn('Autosave to server fallback to local browser storage:', err.message);
 
     // Still attempt Cloud sync for PRO users even if local Python server is unreachable
     if (state.currentUser && state.isPro) {
       saveGoritToCloud(state.subjects).then(cloudRes => {
         if (cloudRes && cloudRes.success) {
           state.lastCloudSync = cloudRes.timestamp;
-          updateAutosaveBadge('cloud', cloudRes.timestamp);
         }
       }).catch(e => {});
     }
@@ -700,14 +659,19 @@ function loadSampleData(notify = true) {
   if (notify) showToast(t('toast_sample_loaded'));
 }
 
-// --- Toast Notifications ---
-function showToast(message) {
+// --- Toast Notifications (Hopeful Model: Quiet by default, notifies on failure) ---
+function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   if (!container) return;
 
   const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerHTML = `<span class="material-symbols-rounded">check_circle</span><span>${escapeHtml(message)}</span>`;
+  toast.className = `toast toast-${type}`;
+  let icon = 'info';
+  if (type === 'success') icon = 'check_circle';
+  else if (type === 'danger' || type === 'error') icon = 'error';
+  else if (type === 'warning') icon = 'warning';
+
+  toast.innerHTML = `<span class="material-symbols-rounded">${icon}</span><span>${escapeHtml(message)}</span>`;
   container.appendChild(toast);
 
   setTimeout(() => {
@@ -1411,7 +1375,6 @@ function expandAll() {
   });
   document.querySelectorAll('.subject-card').forEach(card => card.classList.add('is-expanded'));
   document.querySelectorAll('.content-item-card').forEach(card => card.classList.add('is-expanded'));
-  showToast(t('toast_all_expanded'));
 }
 
 function collapseAll() {
@@ -1419,7 +1382,6 @@ function collapseAll() {
   state.expandedContentIds.clear();
   document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('is-expanded'));
   document.querySelectorAll('.content-item-card').forEach(card => card.classList.remove('is-expanded'));
-  showToast(t('toast_all_collapsed'));
 }
 
 // --- Tab Switching ---
@@ -1956,7 +1918,6 @@ function handleInlineDateChange(subjectId, contentId, newDate) {
   content.examDate = newDate;
   saveToStorage(true);
   renderApp();
-  showToast(t('toast_deadline_updated', { date: formatDate(newDate) || 'none' }));
 }
 
 // --- Search & Filters ---
@@ -2300,15 +2261,20 @@ async function onUserAuthenticated(user) {
     // 2. Load cloud data
     const cloudGorit = await loadGoritFromCloud();
     if (cloudGorit && Array.isArray(cloudGorit.subjects) && cloudGorit.subjects.length > 0) {
-      if (!state.subjects || state.subjects.length === 0) {
-        // Local is empty: direct hydrate
+      const isOnlyDefaultGeneral = !state.subjects || state.subjects.length === 0 || 
+        (state.subjects.length === 1 && (state.subjects[0].id === GENERAL_TASKS_ID || state.subjects[0].isGeneralTasks) && 
+         (state.subjects[0].contents || []).every(c => (c.todos || []).length === 0 && !c.notes));
+
+      if (isOnlyDefaultGeneral) {
+        // Local is clean/default: direct hydrate silently
         state.subjects = cloudGorit.subjects;
+        ensureGeneralTasksSubject();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
         state.lastCloudSync = cloudGorit.updatedAt || new Date().toISOString();
         renderApp();
-        updateAutosaveBadge('cloud', state.lastCloudSync);
+        syncToServer();
       } else {
-        // Both local and cloud have data: offer sync choice
+        // Both local and cloud have custom data: offer sync choice
         pendingCloudSubjects = cloudGorit.subjects;
         const promptDesc = document.getElementById('cloud-prompt-desc');
         if (promptDesc) {
@@ -2386,10 +2352,6 @@ if ('serviceWorker' in navigator) {
 
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-  if (window.location.hostname.endsWith('github.io')) {
-    const filesBtn = document.getElementById('header-files-btn');
-    if (filesBtn) filesBtn.style.display = 'none';
-  }
   updateLanguageUI();
   renderColorSwatches();
   renderIconPalette();

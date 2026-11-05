@@ -225,49 +225,6 @@ body {
   flex-wrap: wrap;
 }
 
-/* Autosave Indicator Pill */
-.autosave-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--surface-container-low);
-  border: 1px solid var(--border-color);
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-full);
-  transition: all var(--m3-duration-short) var(--m3-easing-standard);
-  user-select: none;
-}
-
-.autosave-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--success);
-  display: inline-block;
-  flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-  transition: all var(--m3-duration-short) var(--m3-easing-standard);
-}
-
-.autosave-dot.saving {
-  background-color: var(--warning);
-  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
-  animation: pulse-dot 0.8s infinite alternate var(--m3-easing-standard);
-}
-
-.autosave-dot.offline {
-  background-color: #f97316;
-  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
-}
-
-.autosave-dot.error {
-  background-color: var(--danger);
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
-}
-
 @keyframes pulse-dot {
   0% { transform: scale(0.85); opacity: 0.6; }
   100% { transform: scale(1.25); opacity: 1; }
@@ -1562,6 +1519,28 @@ body {
 .toast .material-symbols-rounded {
   color: var(--primary);
   font-size: 20px;
+}
+
+.toast.toast-danger, .toast.toast-error {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: color-mix(in srgb, #ef4444 8%, var(--bg-surface));
+}
+
+.toast.toast-danger .material-symbols-rounded, .toast.toast-error .material-symbols-rounded {
+  color: #ef4444;
+}
+
+.toast.toast-warning {
+  border-color: rgba(245, 158, 11, 0.45);
+  background: color-mix(in srgb, #f59e0b 8%, var(--bg-surface));
+}
+
+.toast.toast-warning .material-symbols-rounded {
+  color: #f59e0b;
+}
+
+.toast.toast-success .material-symbols-rounded {
+  color: #10b981;
 }
 
 /* Animations */
