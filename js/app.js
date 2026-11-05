@@ -6,6 +6,17 @@
  */
 
 import { t, getLanguage, setLanguage, applyDOMTranslations } from './i18n.js';
+import {
+  auth,
+  signInWithGoogle,
+  signOutUser,
+  onAuthChange,
+  isUserPro,
+  fetchUserProStatus,
+  saveGoritToCloud,
+  loadGoritFromCloud,
+  listenGoritCloud
+} from './firebase-client.js';
 
 // --- Vector / Symbol Helpers ---
 const PLUS_ICON = `<span class="material-symbols-rounded icon-sm">add</span>`;
@@ -83,7 +94,12 @@ const state = {
   selectedColor: PRESET_COLORS[0],
   selectedIcon: PRESET_ICONS[0],
   editingSubjectId: null,
-  editingContentData: null
+  editingContentData: null,
+  currentUser: null,
+  isPro: false,
+  lastCloudSync: null,
+  cloudUnsubscribe: null,
+  isSyncingCloud: false
 };
 
 // Storage Keys: smoothly migrate from studyflow_data_v1 to gorit_data_v1
@@ -376,6 +392,16 @@ function updateAutosaveBadge(status, timestamp) {
     dot.classList.add('saving');
     text.textContent = t('saving_device');
     badge.title = 'Writing changes to local server storage (data.json)...';
+  } else if (status === 'cloud') {
+    dot.classList.add('active');
+    if (timestamp) lastSavedTimestamp = timestamp;
+    let timeStr = '';
+    if (lastSavedTimestamp) {
+      const d = new Date(lastSavedTimestamp);
+      timeStr = ` (${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})`;
+    }
+    text.textContent = `${t('autosaved_cloud')}${timeStr}`;
+    badge.title = 'Sincronizado automaticamente com a nuvem Flashcards (PRO)';
   } else if (status === 'saved') {
     if (timestamp) lastSavedTimestamp = timestamp;
     let timeStr = '';
@@ -419,10 +445,33 @@ async function syncToServer() {
     }
 
     const data = await res.json();
-    updateAutosaveBadge('saved', data.saved_at || new Date().toISOString());
+    const savedTime = data.saved_at || new Date().toISOString();
+    updateAutosaveBadge('saved', savedTime);
+
+    // If user is PRO, also push to Cloud Firestore
+    if (state.currentUser && state.isPro) {
+      saveGoritToCloud(state.subjects).then(cloudRes => {
+        if (cloudRes && cloudRes.success) {
+          state.lastCloudSync = cloudRes.timestamp;
+          updateAutosaveBadge('cloud', cloudRes.timestamp);
+        }
+      }).catch(err => {
+        console.warn('[Gorit Cloud] Sync warning:', err);
+      });
+    }
   } catch (err) {
     console.warn('Autosave to server failed (using browser offline storage):', err.message);
     updateAutosaveBadge('offline');
+
+    // Still attempt Cloud sync for PRO users even if local Python server is unreachable
+    if (state.currentUser && state.isPro) {
+      saveGoritToCloud(state.subjects).then(cloudRes => {
+        if (cloudRes && cloudRes.success) {
+          state.lastCloudSync = cloudRes.timestamp;
+          updateAutosaveBadge('cloud', cloudRes.timestamp);
+        }
+      }).catch(e => {});
+    }
   } finally {
     isSyncingToServer = false;
     if (hasPendingServerSync) {
@@ -1330,6 +1379,11 @@ function updateLanguageUI() {
   }
 
   applyDOMTranslations();
+  renderAccountHeaderBtn();
+  const accModal = document.getElementById('account-modal');
+  if (accModal && accModal.classList.contains('active')) {
+    renderAccountModal();
+  }
 }
 
 function toggleLanguage() {
@@ -1892,6 +1946,322 @@ window.handleInlineNotesBlur = handleInlineNotesBlur;
 window.loadSampleData = loadSampleData;
 window.toggleLanguage = toggleLanguage;
 
+// --- User Account & Cloud Sync (Flashcards PRO Integration) ---
+let pendingCloudSubjects = null;
+
+function renderAccountHeaderBtn() {
+  const btn = document.getElementById('account-btn');
+  const icon = document.getElementById('account-btn-icon');
+  const label = document.getElementById('account-btn-label');
+  const proPill = document.getElementById('account-pro-pill');
+  if (!btn || !label) return;
+
+  if (state.currentUser) {
+    const firstName = (state.currentUser.displayName || state.currentUser.email || '').split(' ')[0] || 'Conta';
+    label.textContent = firstName;
+
+    if (state.currentUser.photoURL) {
+      if (icon) {
+        icon.outerHTML = `<img src="${state.currentUser.photoURL}" class="account-avatar-img" id="account-btn-icon" alt="${firstName}" />`;
+      }
+    } else {
+      if (icon) {
+        if (icon.tagName === 'IMG') {
+          icon.outerHTML = `<span class="material-symbols-rounded icon-sm" id="account-btn-icon">account_circle</span>`;
+        } else {
+          icon.textContent = 'account_circle';
+        }
+      }
+    }
+
+    if (proPill) {
+      proPill.style.display = state.isPro ? 'inline-flex' : 'none';
+    }
+  } else {
+    if (icon) {
+      if (icon.tagName === 'IMG') {
+        icon.outerHTML = `<span class="material-symbols-rounded icon-sm" id="account-btn-icon">account_circle</span>`;
+      } else {
+        icon.textContent = 'account_circle';
+      }
+    }
+    label.textContent = t('auth_sign_in');
+    if (proPill) proPill.style.display = 'none';
+  }
+}
+
+function renderAccountModal() {
+  const body = document.getElementById('account-modal-body');
+  if (!body) return;
+
+  if (!state.currentUser) {
+    body.innerHTML = `
+      <div style="text-align: center; padding: 2rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--primary-container); color: var(--primary); display: flex; align-items: center; justify-content: center;">
+          <span class="material-symbols-rounded" style="font-size: 32px;">cloud_sync</span>
+        </div>
+        <div>
+          <h4 style="font-weight: 700; font-size: 1.15rem; color: var(--text-primary); margin-bottom: 0.35rem;">
+            ${t('auth_sign_in')}
+          </h4>
+          <p style="font-size: 0.88rem; color: var(--text-muted); max-width: 360px; line-height: 1.5; margin: 0 auto;">
+            Conecte sua conta Google para sincronizar seu progresso de estudos com a nuvem e ativar os benefícios do Flashcards PRO.
+          </p>
+        </div>
+        <button class="btn btn-primary" onclick="handleGoogleSignIn()" style="margin-top: 0.5rem; padding: 0.65rem 1.4rem; gap: 0.5rem;">
+          <span class="material-symbols-rounded">login</span>
+          <span>${t('auth_sign_in')}</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  const user = state.currentUser;
+  const isPro = state.isPro;
+  const photo = user.photoURL 
+    ? `<img src="${user.photoURL}" class="account-user-avatar" alt="${user.displayName || 'Avatar'}" />`
+    : `<div class="account-user-avatar-placeholder">${(user.displayName || user.email || 'U')[0].toUpperCase()}</div>`;
+
+  body.innerHTML = `
+    <!-- User Profile Card -->
+    <div class="account-user-card">
+      ${photo}
+      <div class="account-user-details">
+        <span class="account-user-name">${user.displayName || 'Estudante'}</span>
+        <span class="account-user-email">${user.email || ''}</span>
+      </div>
+    </div>
+
+    <!-- Plan Status Card -->
+    <div class="account-plan-box ${isPro ? 'is-pro' : ''}">
+      <div class="account-plan-header">
+        <span class="account-plan-title">${t('account_status_label')}</span>
+        ${isPro 
+          ? `<span class="account-plan-badge-pro"><span class="material-symbols-rounded" style="font-size: 16px;">verified</span>${t('account_pro_badge')}</span>`
+          : `<span class="account-plan-badge-free"><span class="material-symbols-rounded" style="font-size: 16px;">lock</span>${t('account_free_badge')}</span>`}
+      </div>
+      <p class="account-plan-desc">
+        ${isPro ? t('account_pro_desc') : t('account_free_desc')}
+      </p>
+      ${!isPro ? `
+        <a href="https://cparthur1.github.io/Flashcards/" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 0.4rem; justify-content: center; gap: 0.4rem; text-decoration: none;">
+          <span class="material-symbols-rounded icon-sm">star</span>
+          <span>${t('account_upgrade_btn')}</span>
+        </a>
+      ` : ''}
+    </div>
+
+    <!-- Cloud Sync Section -->
+    <div class="account-cloud-box">
+      <div class="account-cloud-header">
+        <div class="account-cloud-status">
+          <span class="cloud-dot ${isPro ? (state.isSyncingCloud ? 'syncing' : 'active') : ''}"></span>
+          <span>${isPro ? (state.isSyncingCloud ? t('cloud_sync_status_pending') : t('cloud_sync_status_synced')) : t('cloud_sync_status_offline')}</span>
+        </div>
+        ${isPro ? `
+          <button class="btn btn-outline btn-sm" onclick="handleManualCloudSync()" style="gap: 0.35rem;" ${state.isSyncingCloud ? 'disabled' : ''}>
+            <span class="material-symbols-rounded icon-sm">cloud_sync</span>
+            <span>${t('cloud_sync_now_btn')}</span>
+          </button>
+        ` : ''}
+      </div>
+      <span class="account-cloud-time">
+        ${state.lastCloudSync 
+          ? t('cloud_last_synced').replace('{time}', new Date(state.lastCloudSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })) 
+          : t('cloud_never_synced')}
+      </span>
+    </div>
+
+    <!-- Sign Out Row -->
+    <div class="account-actions-row">
+      <button class="btn btn-outline btn-sm" onclick="handleGoogleSignOut()" style="gap: 0.4rem; color: var(--danger);">
+        <span class="material-symbols-rounded icon-sm">logout</span>
+        <span>${t('auth_sign_out')}</span>
+      </button>
+    </div>
+  `;
+}
+
+function openAccountModal() {
+  const modal = document.getElementById('account-modal');
+  if (modal) {
+    renderAccountModal();
+    modal.classList.add('active');
+  }
+}
+
+function closeAccountModal() {
+  const modal = document.getElementById('account-modal');
+  if (modal) modal.classList.remove('active');
+}
+
+function closeCloudPromptModal() {
+  const modal = document.getElementById('cloud-prompt-modal');
+  if (modal) modal.classList.remove('active');
+  pendingCloudSubjects = null;
+}
+
+function acceptCloudData() {
+  if (pendingCloudSubjects) {
+    state.subjects = pendingCloudSubjects;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
+    state.lastCloudSync = new Date().toISOString();
+    renderApp();
+    syncToServer();
+    updateAutosaveBadge('cloud', state.lastCloudSync);
+    showToast(t('cloud_sync_success_toast'), 'success');
+  }
+  closeCloudPromptModal();
+}
+
+function rejectCloudData() {
+  if (state.currentUser && state.isPro) {
+    saveGoritToCloud(state.subjects).then(res => {
+      if (res && res.success) {
+        state.lastCloudSync = res.timestamp;
+        updateAutosaveBadge('cloud', res.timestamp);
+      }
+    });
+  }
+  closeCloudPromptModal();
+}
+
+async function handleGoogleSignIn() {
+  try {
+    const user = await signInWithGoogle();
+    if (user) {
+      await onUserAuthenticated(user);
+      renderAccountModal();
+      showToast(t('auth_signed_in_as').replace('{name}', user.displayName || user.email), 'success');
+    }
+  } catch (err) {
+    console.error('Sign-in failed:', err);
+    showToast('Falha no login com Google. Verifique sua conexão.', 'danger');
+  }
+}
+
+async function handleGoogleSignOut() {
+  try {
+    if (state.cloudUnsubscribe) {
+      state.cloudUnsubscribe();
+      state.cloudUnsubscribe = null;
+    }
+    await signOutUser();
+    state.currentUser = null;
+    state.isPro = false;
+    renderAccountHeaderBtn();
+    renderAccountModal();
+    updateAutosaveBadge('saved');
+    showToast('Desconectado com sucesso.', 'info');
+  } catch (err) {
+    console.error('Sign-out failed:', err);
+  }
+}
+
+async function handleManualCloudSync() {
+  if (!state.currentUser || !state.isPro) return;
+  state.isSyncingCloud = true;
+  renderAccountModal();
+  updateAutosaveBadge('saving');
+
+  const res = await saveGoritToCloud(state.subjects);
+  state.isSyncingCloud = false;
+
+  if (res && res.success) {
+    state.lastCloudSync = res.timestamp;
+    showToast(t('cloud_sync_success_toast'), 'success');
+    updateAutosaveBadge('cloud', res.timestamp);
+  } else {
+    showToast(t('cloud_sync_error_toast'), 'danger');
+  }
+  renderAccountModal();
+}
+
+async function onUserAuthenticated(user) {
+  state.currentUser = user;
+  renderAccountHeaderBtn();
+
+  // 1. Check PRO status
+  await fetchUserProStatus(user);
+  state.isPro = isUserPro(user);
+  renderAccountHeaderBtn();
+
+  if (state.isPro) {
+    // 2. Load cloud data
+    const cloudGorit = await loadGoritFromCloud();
+    if (cloudGorit && Array.isArray(cloudGorit.subjects) && cloudGorit.subjects.length > 0) {
+      if (!state.subjects || state.subjects.length === 0) {
+        // Local is empty: direct hydrate
+        state.subjects = cloudGorit.subjects;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
+        state.lastCloudSync = cloudGorit.updatedAt || new Date().toISOString();
+        renderApp();
+        updateAutosaveBadge('cloud', state.lastCloudSync);
+      } else {
+        // Both local and cloud have data: offer sync choice
+        pendingCloudSubjects = cloudGorit.subjects;
+        const promptDesc = document.getElementById('cloud-prompt-desc');
+        if (promptDesc) {
+          promptDesc.textContent = t('cloud_data_found_desc').replace('{count}', cloudGorit.subjects.length);
+        }
+        const promptModal = document.getElementById('cloud-prompt-modal');
+        if (promptModal) promptModal.classList.add('active');
+      }
+    } else if (state.subjects && state.subjects.length > 0) {
+      // Cloud is empty: push local data to cloud
+      saveGoritToCloud(state.subjects).then(res => {
+        if (res && res.success) {
+          state.lastCloudSync = res.timestamp;
+          updateAutosaveBadge('cloud', res.timestamp);
+        }
+      });
+    }
+
+    // 3. Listen to remote changes
+    if (state.cloudUnsubscribe) {
+      state.cloudUnsubscribe();
+      state.cloudUnsubscribe = null;
+    }
+    state.cloudUnsubscribe = listenGoritCloud((cloudData) => {
+      if (cloudData && Array.isArray(cloudData.subjects)) {
+        if (cloudData.updatedAt && cloudData.updatedAt !== state.lastCloudSync && !isSyncingToServer && !state.isSyncingCloud) {
+          state.subjects = cloudData.subjects;
+          state.lastCloudSync = cloudData.updatedAt;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
+          renderApp();
+          updateAutosaveBadge('cloud', state.lastCloudSync);
+        }
+      }
+    });
+  }
+}
+
+function initAuthSync() {
+  onAuthChange(async (user) => {
+    if (user) {
+      await onUserAuthenticated(user);
+    } else {
+      if (state.cloudUnsubscribe) {
+        state.cloudUnsubscribe();
+        state.cloudUnsubscribe = null;
+      }
+      state.currentUser = null;
+      state.isPro = false;
+      renderAccountHeaderBtn();
+    }
+  });
+}
+
+window.openAccountModal = openAccountModal;
+window.closeAccountModal = closeAccountModal;
+window.closeCloudPromptModal = closeCloudPromptModal;
+window.acceptCloudData = acceptCloudData;
+window.rejectCloudData = rejectCloudData;
+window.handleGoogleSignIn = handleGoogleSignIn;
+window.handleGoogleSignOut = handleGoogleSignOut;
+window.handleManualCloudSync = handleManualCloudSync;
+
 // --- Service Worker Registration ---
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -1916,4 +2286,5 @@ document.addEventListener('DOMContentLoaded', () => {
   renderIconPalette();
   loadFromStorage();
   renderApp();
+  initAuthSync();
 });

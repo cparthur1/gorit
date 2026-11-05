@@ -1532,3 +1532,217 @@ body {
   margin: 0 auto 1.5rem;
   line-height: 1.5;
 }
+
+/* --- Auth & Cloud Sync (Flashcards PRO Integration) --- */
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: var(--radius-full);
+}
+
+.account-avatar-img {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.pro-tag-badge {
+  background: linear-gradient(135deg, #3b82f7 0%, #1d61e8 100%);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+}
+
+.account-modal-card {
+  max-width: 490px;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+}
+
+.account-modal-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.account-user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  background: var(--surface-container-low);
+  border-radius: var(--radius-xl);
+}
+
+.account-user-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+  flex-shrink: 0;
+}
+
+.account-user-avatar-placeholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.account-user-details {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.account-user-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-user-email {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account-plan-box {
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  background: var(--surface-container-lowest);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.account-plan-box.is-pro {
+  background: linear-gradient(145deg, rgba(59, 130, 247, 0.08) 0%, rgba(30, 58, 138, 0.04) 100%);
+  border-color: rgba(59, 130, 247, 0.35);
+}
+
+.account-plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-plan-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.account-plan-badge-pro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: linear-gradient(135deg, #3b82f7 0%, #1d61e8 100%);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.account-plan-badge-free {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--surface-container);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+}
+
+.account-plan-desc {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.account-cloud-box {
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-color);
+  background: var(--surface-container-lowest);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.account-cloud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.account-cloud-status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cloud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.cloud-dot.active {
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+}
+
+.cloud-dot.syncing {
+  background: var(--primary);
+  animation: pulseDot 1.2s infinite ease-in-out;
+}
+
+.account-cloud-time {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.account-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+

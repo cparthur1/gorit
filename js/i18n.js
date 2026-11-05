@@ -154,7 +154,36 @@ export const TRANSLATIONS = {
     alert_enter_subject_name: 'Por favor, insira o nome da disciplina.',
     alert_enter_content_title: 'Por favor, insira o título do conteúdo.',
     alert_invalid_json: 'Formato de arquivo JSON inválido.',
-    alert_error_reading_json: 'Erro ao ler arquivo JSON: {error}'
+    alert_error_reading_json: 'Erro ao ler arquivo JSON: {error}',
+
+    // Auth & Cloud Sync (Flashcards PRO Integration)
+    auth_sign_in: 'Entrar com Google',
+    auth_sign_out: 'Sair da conta',
+    auth_signing_in: 'Conectando...',
+    auth_signed_in_as: 'Conectado como {name}',
+    account_btn_title: 'Minha Conta & Sincronização em Nuvem',
+    account_modal_title: 'Minha Conta & Sincronização',
+    account_modal_subtitle: 'Extensão da sua assinatura do Flashcards',
+    account_status_label: 'Status do Plano',
+    account_pro_badge: 'Flashcards PRO Ativo',
+    account_pro_desc: 'Sua assinatura PRO libera a sincronização automática em tempo real em todos os seus aparelhos.',
+    account_free_badge: 'Plano Gratuito',
+    account_free_desc: 'A sincronização em nuvem é exclusiva para assinantes Flashcards PRO. Seus dados continuam salvos localmente neste aparelho.',
+    account_upgrade_btn: 'Desbloquear Nuvem com Flashcards PRO',
+    cloud_sync_title: 'Sincronização em Nuvem',
+    cloud_sync_status_synced: 'Nuvem sincronizada',
+    cloud_sync_status_pending: 'Sincronizando com a nuvem...',
+    cloud_sync_status_offline: 'Offline / Nuvem pausada',
+    cloud_sync_now_btn: 'Sincronizar Agora',
+    cloud_last_synced: 'Último envio para a nuvem: {time}',
+    cloud_never_synced: 'Ainda não sincronizado nesta sessão',
+    cloud_sync_success_toast: 'Dados salvos na nuvem Flashcards com sucesso!',
+    cloud_sync_error_toast: 'Não foi possível sincronizar com a nuvem. Tentaremos novamente em instantes.',
+    cloud_data_found_title: 'Dados na Nuvem Encontrados',
+    cloud_data_found_desc: 'Encontramos um cronograma salvo na sua conta do Flashcards ({count} disciplinas). Deseja carregar os dados da nuvem?',
+    cloud_load_cloud_btn: 'Carregar da Nuvem',
+    cloud_keep_local_btn: 'Manter Dados Deste Aparelho',
+    autosaved_cloud: 'Nuvem PRO Sincronizada'
   },
 
   'en-US': {
@@ -301,7 +330,36 @@ export const TRANSLATIONS = {
     alert_enter_subject_name: 'Please enter a subject name.',
     alert_enter_content_title: 'Please enter a content title.',
     alert_invalid_json: 'Invalid JSON file format.',
-    alert_error_reading_json: 'Error reading JSON file: {error}'
+    alert_error_reading_json: 'Error reading JSON file: {error}',
+
+    // Auth & Cloud Sync (Flashcards PRO Integration)
+    auth_sign_in: 'Sign in with Google',
+    auth_sign_out: 'Sign out',
+    auth_signing_in: 'Signing in...',
+    auth_signed_in_as: 'Signed in as {name}',
+    account_btn_title: 'My Account & Cloud Sync',
+    account_modal_title: 'My Account & Sync',
+    account_modal_subtitle: 'Extension of your Flashcards subscription',
+    account_status_label: 'Plan Status',
+    account_pro_badge: 'Flashcards PRO Active',
+    account_pro_desc: 'Your PRO subscription unlocks real-time automatic cloud sync across all your devices.',
+    account_free_badge: 'Free Plan',
+    account_free_desc: 'Cloud sync is an exclusive feature for Flashcards PRO subscribers. Your data remains saved locally on this device.',
+    account_upgrade_btn: 'Unlock Cloud Sync with Flashcards PRO',
+    cloud_sync_title: 'Cloud Synchronization',
+    cloud_sync_status_synced: 'Cloud synced',
+    cloud_sync_status_pending: 'Syncing with cloud...',
+    cloud_sync_status_offline: 'Offline / Cloud paused',
+    cloud_sync_now_btn: 'Sync Now',
+    cloud_last_synced: 'Last cloud sync: {time}',
+    cloud_never_synced: 'Not synced yet in this session',
+    cloud_sync_success_toast: 'Data successfully saved to Flashcards cloud!',
+    cloud_sync_error_toast: 'Could not sync to cloud. We will retry momentarily.',
+    cloud_data_found_title: 'Cloud Data Found',
+    cloud_data_found_desc: 'We found a study schedule saved in your Flashcards account ({count} subjects). Would you like to load cloud data?',
+    cloud_load_cloud_btn: 'Load from Cloud',
+    cloud_keep_local_btn: 'Keep Local Device Data',
+    autosaved_cloud: 'PRO Cloud Synced'
   }
 };
 

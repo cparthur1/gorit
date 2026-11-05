@@ -16,6 +16,7 @@ const RAW_ASSETS = [
   '/css/styles.css',
   '/js/app.js',
   '/js/i18n.js',
+  '/js/firebase-client.js',
   '/manifest.webmanifest',
   '/manifest.json',
   '/favicon.ico',
@@ -40,7 +41,8 @@ const ASSETS_TO_CACHE = RAW_ASSETS.map(p => p === '/' ? (BASE_PATH || '/') : `${
 const ALLOWED_CDN_HOSTS = new Set([
   'fonts.googleapis.com',
   'fonts.gstatic.com',
-  'cdn.jsdelivr.net'
+  'cdn.jsdelivr.net',
+  'www.gstatic.com'
 ]);
 
 self.addEventListener('install', (event) => {

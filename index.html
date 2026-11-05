@@ -51,6 +51,13 @@
           </div>
 
           <div class="header-actions">
+            <!-- User Account & Cloud Sync (Flashcards PRO Integration) -->
+            <button class="btn btn-outline btn-sm account-btn" id="account-btn" onclick="openAccountModal()" data-i18n-title="account_btn_title" title="Minha Conta & Sincronização em Nuvem">
+              <span class="material-symbols-rounded icon-sm" id="account-btn-icon">account_circle</span>
+              <span id="account-btn-label" data-i18n="auth_sign_in">Entrar</span>
+              <span class="pro-tag-badge" id="account-pro-pill" style="display:none;">PRO</span>
+            </button>
+
             <!-- Language Switcher (strictly pt-BR / en-US) -->
             <button class="btn btn-outline btn-sm lang-toggle-btn" id="lang-toggle-btn" onclick="toggleLanguage()" title="Alternar idioma / Switch language">
               <span class="material-symbols-rounded icon-sm">translate</span>
@@ -314,6 +321,45 @@
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
+
+  <!-- Account & Cloud Synchronization Modal (Material You Expressive) -->
+  <div class="modal-backdrop" id="account-modal">
+    <div class="modal-card account-modal-card">
+      <div class="modal-header">
+        <div class="account-header-info">
+          <h3 class="modal-title" data-i18n="account_modal_title">Minha Conta &amp; Sincronização</h3>
+          <p class="account-subtitle" data-i18n="account_modal_subtitle">Extensão da sua assinatura do Flashcards</p>
+        </div>
+        <button class="btn-icon" onclick="closeAccountModal()" title="Fechar">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div class="account-modal-body" id="account-modal-body">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloud Data Hydration Prompt Modal -->
+  <div class="modal-backdrop" id="cloud-prompt-modal">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="cloud_data_found_title">Dados na Nuvem Encontrados</h3>
+        <button class="btn-icon" onclick="closeCloudPromptModal()" title="Fechar">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <p id="cloud-prompt-desc" style="color: var(--md-sys-color-on-surface-variant); font-size: 0.9rem; line-height: 1.45;" data-i18n="cloud_data_found_desc">
+          Encontramos um cronograma salvo na sua conta do Flashcards. Deseja carregar os dados da nuvem?
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
+          <button class="btn btn-outline btn-sm" onclick="rejectCloudData()" data-i18n="cloud_keep_local_btn">Manter Local</button>
+          <button class="btn btn-primary btn-sm" onclick="acceptCloudData()" data-i18n="cloud_load_cloud_btn">Carregar da Nuvem</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- App Script (ES Module with i18n & Service Worker registration) -->
   <script type="module" src="js/app.js"></script>
