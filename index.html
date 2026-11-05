@@ -197,13 +197,25 @@
               />
             </div>
 
-            <!-- Subject Material Symbol Icon Picker -->
+            <!-- Subject Emoji Icon Picker -->
             <div class="form-group">
-              <label class="form-label" data-i18n="subject_icon_label">Subject Icon</label>
+              <label class="form-label" data-i18n="subject_icon_label">Subject Icon (Emoji)</label>
               <div class="icon-palette" id="icon-palette-container">
-                <!-- Material Symbols injected by JS -->
+                <!-- Emojis injected by JS -->
               </div>
-              <input type="hidden" id="selected-icon-input" value="medical_services" />
+              <div class="custom-emoji-row" style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 0.85rem; color: var(--text-secondary);" data-i18n="custom_emoji_label">Or type/paste any emoji:</span>
+                <input 
+                  type="text" 
+                  id="custom-emoji-input" 
+                  class="form-control" 
+                  style="width: 70px; text-align: center; font-size: 1.35rem; padding: 0.25rem 0.4rem;" 
+                  placeholder="💡"
+                  maxlength="4"
+                  oninput="selectCustomEmoji(this.value)"
+                />
+              </div>
+              <input type="hidden" id="selected-icon-input" value="📚" />
             </div>
 
             <!-- Color Picker -->

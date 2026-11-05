@@ -183,7 +183,14 @@ export const TRANSLATIONS = {
     cloud_data_found_desc: 'Encontramos um cronograma salvo na sua conta do Flashcards ({count} disciplinas). Deseja carregar os dados da nuvem?',
     cloud_load_cloud_btn: 'Carregar da Nuvem',
     cloud_keep_local_btn: 'Manter Dados Deste Aparelho',
-    autosaved_cloud: 'Nuvem PRO Sincronizada'
+    autosaved_cloud: 'Nuvem PRO Sincronizada',
+
+    // General Tasks & Emojis
+    general_tasks_title: 'Tarefas Gerais',
+    general_tasks_default_content: 'Tarefas Rápidas & Diárias',
+    general_tasks_cannot_delete: 'A lista de Tarefas Gerais é fixa e não pode ser excluída.',
+    pinned_badge: 'Fixado',
+    custom_emoji_label: 'Ou digite/cole qualquer emoji:'
   },
 
   'en-US': {
@@ -359,7 +366,14 @@ export const TRANSLATIONS = {
     cloud_data_found_desc: 'We found a study schedule saved in your Flashcards account ({count} subjects). Would you like to load cloud data?',
     cloud_load_cloud_btn: 'Load from Cloud',
     cloud_keep_local_btn: 'Keep Local Device Data',
-    autosaved_cloud: 'PRO Cloud Synced'
+    autosaved_cloud: 'PRO Cloud Synced',
+
+    // General Tasks & Emojis
+    general_tasks_title: 'General Tasks',
+    general_tasks_default_content: 'Quick & Daily To-Dos',
+    general_tasks_cannot_delete: 'General Tasks is pinned to top and cannot be deleted.',
+    pinned_badge: 'Pinned',
+    custom_emoji_label: 'Or type/paste any emoji:'
   }
 };
 

@@ -36,63 +36,66 @@ const PRESET_COLORS = [
   '#64748b'  // Slate
 ];
 
-const PRESET_ICONS = [
-  'medical_services', 'cardiology', 'psychology', 'respiratory_rate', 'orthopedics',
-  'visibility', 'dentistry', 'bloodtype', 'medication', 'vaccines',
-  'science', 'biotech', 'radiology', 'healing', 'local_hospital',
-  'school', 'menu_book', 'assignment', 'calculate', 'laptop_mac'
+// User-selected Subject Emojis (Explicit exception for subject icons)
+const PRESET_EMOJIS = [
+  '📚', '🧠', '🩺', '🫀', '🔬', '🧬', '💊', '💉',
+  '🧪', '📝', '💻', '🎨', '⚖️', '🌍', '📐', '📊',
+  '⚡', '🎯', '💡', '🏅', '📌', '🎓', '🦴', '🏥'
 ];
 
-// Compatibility map: gracefully convert any legacy emojis to official Material Symbols
-const EMOJI_TO_SYMBOL_MAP = {
-  '🩺': 'medical_services',
-  '🫀': 'cardiology',
-  '🧠': 'psychology',
-  '🫁': 'respiratory_rate',
-  '🦴': 'orthopedics',
-  '👁️': 'visibility',
-  '👁': 'visibility',
-  '🦷': 'dentistry',
-  '👂': 'hearing',
-  '🩸': 'bloodtype',
-  '💊': 'medication',
-  '💉': 'vaccines',
-  '🔬': 'science',
-  '🧬': 'biotech',
-  '🧫': 'biotech',
-  '🦠': 'coronavirus',
-  '🩻': 'radiology',
-  '🩹': 'healing',
-  '🌡️': 'device_thermostat',
-  '🌡': 'device_thermostat',
-  '⚕️': 'medical_services',
-  '⚕': 'medical_services',
-  '🏥': 'local_hospital',
-  '👶': 'child_care',
-  '🧤': 'clean_hands',
-  '📚': 'school',
-  '📝': 'edit_note'
-};
+function renderSubjectIcon(subject) {
+  const icon = (subject && (subject.icon || subject.emoji)) || '📚';
+  // If it's a legacy Material Symbol name
+  if (/^[a-z0-9_]+$/.test(icon)) {
+    return `<span class="material-symbols-rounded">${icon}</span>`;
+  }
+  return `<span class="subject-emoji-icon">${icon}</span>`;
+}
 
-function getSubjectSymbol(subject) {
-  if (subject && subject.icon && !EMOJI_TO_SYMBOL_MAP[subject.icon]) {
-    return subject.icon;
+// Fixed General Tasks Subject ID
+const GENERAL_TASKS_ID = 'general-tasks';
+
+function ensureGeneralTasksSubject() {
+  let generalSubject = state.subjects.find(s => s.id === GENERAL_TASKS_ID || s.isGeneralTasks);
+  if (!generalSubject) {
+    generalSubject = {
+      id: GENERAL_TASKS_ID,
+      name: t('general_tasks_title') || 'General Tasks',
+      code: '',
+      color: '#3b82f7',
+      icon: '📌',
+      isPinned: true,
+      isGeneralTasks: true,
+      contents: [
+        {
+          id: 'general-content-default',
+          title: t('general_tasks_default_content') || 'Quick & Daily To-Dos',
+          examDate: null,
+          isCompleted: false,
+          notes: '',
+          todos: []
+        }
+      ]
+    };
+    state.subjects.unshift(generalSubject);
+  } else {
+    generalSubject.id = GENERAL_TASKS_ID;
+    generalSubject.isPinned = true;
+    generalSubject.isGeneralTasks = true;
+    if (!generalSubject.icon) generalSubject.icon = '📌';
   }
-  if (subject && subject.emoji && EMOJI_TO_SYMBOL_MAP[subject.emoji]) {
-    return EMOJI_TO_SYMBOL_MAP[subject.emoji];
-  }
-  return 'medical_services';
+  return generalSubject;
 }
 
 // --- Application State ---
 const state = {
   subjects: [],
   activeTab: 'studies', // 'studies' | 'semester'
-  expandedSubjectIds: new Set(),
-  expandedContentIds: new Set(),
+  expandedSubjectIds: new Set([GENERAL_TASKS_ID]),
+  expandedContentIds: new Set(['general-content-default']),
   searchQuery: '',
   selectedColor: PRESET_COLORS[0],
-  selectedIcon: PRESET_ICONS[0],
+  selectedIcon: PRESET_EMOJIS[0],
   editingSubjectId: null,
   editingContentData: null,
   currentUser: null,
@@ -225,9 +228,20 @@ function getSubjectNextExam(subject) {
   return { nearestUpcoming, latestPast };
 }
 
-// --- Sorting Subjects Chronologically ---
+// --- Sorting Subjects Chronologically (Pinned items always at top) ---
 function sortSubjectsChronologically(subjects) {
-  return [...subjects].sort((a, b) => {
+  const pinned = [];
+  const unpinned = [];
+
+  subjects.forEach(s => {
+    if (s.isPinned || s.id === GENERAL_TASKS_ID || s.isGeneralTasks) {
+      pinned.push(s);
+    } else {
+      unpinned.push(s);
+    }
+  });
+
+  unpinned.sort((a, b) => {
     const examA = getSubjectNextExam(a);
     const examB = getSubjectNextExam(b);
 
@@ -260,6 +274,8 @@ function sortSubjectsChronologically(subjects) {
     // 3. Fallback: alphabetical
     return a.name.localeCompare(b.name);
   });
+
+  return [...pinned, ...unpinned];
 }
 
 // --- Sort Contents chronologically inside a Subject ---
@@ -547,6 +563,10 @@ async function loadFromStorage() {
 
   if (localData && localData.length > 0) {
     state.subjects = localData;
+    ensureGeneralTasksSubject();
+    renderApp();
+  } else {
+    ensureGeneralTasksSubject();
     renderApp();
   }
 
@@ -559,14 +579,17 @@ async function loadFromStorage() {
 
       if (subjects && subjects.length > 0) {
         state.subjects = subjects;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
+        ensureGeneralTasksSubject();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
         renderApp();
         updateAutosaveBadge('saved');
       } else if (localData && localData.length > 0) {
         // Migrate existing browser data to host file
+        ensureGeneralTasksSubject();
         await syncToServer();
       } else {
         state.subjects = [];
+        ensureGeneralTasksSubject();
         renderApp();
         updateAutosaveBadge('saved');
       }
@@ -598,7 +621,7 @@ function loadSampleData(notify = true) {
     {
       id: 'sub-anat',
       name: isPt ? 'Anatomia Humana & Embriologia' : 'Human Anatomy & Embryology',
-      icon: 'cardiology',
+      icon: '🫀',
       color: '#ef4444',
       code: 'ANAT101',
       contents: [
@@ -629,7 +652,7 @@ function loadSampleData(notify = true) {
     {
       id: 'sub-phys',
       name: isPt ? 'Fisiologia Médica' : 'Medical Physiology',
-      icon: 'psychology',
+      icon: '🧠',
       color: '#3b82f7',
       code: 'PHYS101',
       contents: [
@@ -649,7 +672,7 @@ function loadSampleData(notify = true) {
     {
       id: 'sub-pharm',
       name: isPt ? 'Farmacologia Médica' : 'Medical Pharmacology',
-      icon: 'medication',
+      icon: '💊',
       color: '#10b981',
       code: 'PHARM201',
       contents: [
@@ -667,7 +690,9 @@ function loadSampleData(notify = true) {
     }
   ];
 
+  ensureGeneralTasksSubject();
   state.expandedSubjectIds.clear();
+  state.expandedSubjectIds.add(GENERAL_TASKS_ID);
   state.expandedContentIds.clear();
 
   saveToStorage();
@@ -806,6 +831,7 @@ function renderStudiesView() {
   }
 
   let html = '';
+  const firstUpcomingExamSubject = filteredSubjects.find(s => !s.isPinned && s.id !== GENERAL_TASKS_ID && getSubjectNextExam(s).nearestUpcoming);
 
   filteredSubjects.forEach((subject, subIndex) => {
     const isSubjectExpanded = state.expandedSubjectIds.has(subject.id);
@@ -858,24 +884,23 @@ function renderStudiesView() {
       `;
     }
 
-    const symbol = getSubjectSymbol(subject);
-
-    // Build subject card
+    // Build subject card with M3 Expressive animated drawer
     html += `
-      <div class="subject-card ${isSubjectExpanded ? 'is-expanded' : ''}" 
+      <div class="subject-card ${isSubjectExpanded ? 'is-expanded' : ''} ${subject.isPinned || subject.id === GENERAL_TASKS_ID ? 'is-pinned' : ''}" 
            id="subject-card-${subject.id}"
            style="--subject-color: ${color}">
         
         <!-- Header (Click to toggle expansion) -->
         <div class="subject-header" onclick="toggleSubject('${subject.id}', event)">
           <div class="subject-icon-box">
-            <span class="material-symbols-rounded">${symbol}</span>
+            ${renderSubjectIcon(subject)}
           </div>
 
           <div class="subject-info">
             <div class="subject-title-row">
               <div class="subject-name">
-                ${subIndex === 0 && examInfo.nearestUpcoming ? `<span class="first-in-line-badge" title="${t('next_upcoming_exam_tooltip')}"><span class="material-symbols-rounded">grade</span> ${t('first_in_line')}</span>` : ''}
+                ${(subject.isPinned || subject.id === GENERAL_TASKS_ID) ? `<span class="pinned-badge"><span class="material-symbols-rounded">push_pin</span> ${t('pinned_badge')}</span>` : ''}
+                ${!(subject.isPinned || subject.id === GENERAL_TASKS_ID) && firstUpcomingExamSubject && firstUpcomingExamSubject.id === subject.id ? `<span class="first-in-line-badge" title="${t('next_upcoming_exam_tooltip')}"><span class="material-symbols-rounded">grade</span> ${t('first_in_line')}</span>` : ''}
                 ${escapeHtml(subject.name)}
                 ${subject.code ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHtml(subject.code)})</span>` : ''}
               </div>
@@ -902,28 +927,30 @@ function renderStudiesView() {
         </div>
 
         <!-- Subject Drawer (Expanded Content) -->
-        <div class="subject-contents-drawer">
-          <div class="contents-header-bar">
-            <div class="contents-count-text">
-              <span class="material-symbols-rounded">folder</span>
-              ${t('contents_header', { count: (subject.contents || []).length })}
-            </div>
-            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-              ${(subject.contents || []).length > 0 ? `
-                <button class="btn btn-outline btn-sm" onclick="toggleAllSubjectContents('${subject.id}', event)" title="${t('toggle_all_tooltip')}">
-                  <span class="material-symbols-rounded icon-sm">${isSubjectAllDone(subject) ? 'restart_alt' : 'done_all'}</span>
-                  ${isSubjectAllDone(subject) ? t('reset_all') : t('complete_all')}
+        <div class="subject-contents-drawer-wrapper">
+          <div class="subject-contents-drawer">
+            <div class="contents-header-bar">
+              <div class="contents-count-text">
+                <span class="material-symbols-rounded">folder</span>
+                ${t('contents_header', { count: (subject.contents || []).length })}
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                ${(subject.contents || []).length > 0 ? `
+                  <button class="btn btn-outline btn-sm" onclick="toggleAllSubjectContents('${subject.id}', event)" title="${t('toggle_all_tooltip')}">
+                    <span class="material-symbols-rounded icon-sm">${isSubjectAllDone(subject) ? 'restart_alt' : 'done_all'}</span>
+                    ${isSubjectAllDone(subject) ? t('reset_all') : t('complete_all')}
+                  </button>
+                ` : ''}
+                <button class="btn btn-primary btn-sm" onclick="openAddContentModal('${subject.id}', event)">
+                  ${PLUS_ICON} ${t('add_content')}
                 </button>
-              ` : ''}
-              <button class="btn btn-primary btn-sm" onclick="openAddContentModal('${subject.id}', event)">
-                ${PLUS_ICON} ${t('add_content')}
-              </button>
+              </div>
             </div>
-          </div>
 
-          <!-- List of Contents -->
-          <div class="contents-list-wrap">
-            ${renderContentsList(subject)}
+            <!-- List of Contents -->
+            <div class="contents-list-wrap">
+              ${renderContentsList(subject)}
+            </div>
           </div>
         </div>
       </div>
@@ -1063,63 +1090,65 @@ function renderContentsList(subject) {
           </div>
         </div>
 
-        <!-- Content Tasks Drawer (To-Dos) -->
-        <div class="content-tasks-drawer">
-          <!-- Content Drawer Completion & Actions Bar -->
-          <div class="content-drawer-header-actions">
-            <button 
-              type="button" 
-              class="btn ${isCompleted ? 'btn-outline' : 'btn-success-soft'} btn-sm" 
-              onclick="toggleContentCompleted('${subject.id}', '${content.id}', ${!isCompleted}, event)"
-              title="${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}">
-              <span class="material-symbols-rounded icon-sm">${isCompleted ? 'restart_alt' : 'check'}</span>
-              ${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}
-            </button>
-            
-            <div class="content-drawer-status-summary">
-              <span class="material-symbols-rounded icon-sm">checklist</span>
-              ${hasTodos 
-                ? `<span>${t('tasks_progress_summary', { completed: completedTodosCount, total: totalTodosCount, percent: progress.percent })}</span>` 
-                : `<span>${isCompleted ? t('topic_completed_summary') : t('topic_pending_summary')}</span>`
-              }
-            </div>
-          </div>
-
-          <div class="content-notes-box">
-            <div class="content-notes-header">
-              <div class="content-notes-header-left">
-                <span class="material-symbols-rounded">lightbulb</span>
-                <span>${t('notes_and_tips')}</span>
+        <!-- Content Tasks Drawer (To-Dos Animated with M3 Curves) -->
+        <div class="content-tasks-drawer-wrapper">
+          <div class="content-tasks-drawer">
+            <!-- Content Drawer Completion & Actions Bar -->
+            <div class="content-drawer-header-actions">
+              <button 
+                type="button" 
+                class="btn ${isCompleted ? 'btn-outline' : 'btn-success-soft'} btn-sm" 
+                onclick="toggleContentCompleted('${subject.id}', '${content.id}', ${!isCompleted}, event)"
+                title="${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}">
+                <span class="material-symbols-rounded icon-sm">${isCompleted ? 'restart_alt' : 'check'}</span>
+                ${isCompleted ? t('mark_as_pending') : t('mark_as_completed')}
+              </button>
+              
+              <div class="content-drawer-status-summary">
+                <span class="material-symbols-rounded icon-sm">checklist</span>
+                ${hasTodos 
+                  ? `<span>${t('tasks_progress_summary', { completed: completedTodosCount, total: totalTodosCount, percent: progress.percent })}</span>` 
+                  : `<span>${isCompleted ? t('topic_completed_summary') : t('topic_pending_summary')}</span>`
+                }
               </div>
-              <span class="autosave-micro-hint" id="hint-notes-${content.id}">autosaved</span>
             </div>
-            <textarea 
-              class="content-notes-textarea" 
-              id="textarea-notes-${content.id}"
-              placeholder="${t('notes_placeholder')}"
-              rows="2"
-              oninput="handleInlineNotesInput('${subject.id}', '${content.id}', this.value)"
-              onblur="handleInlineNotesBlur('${subject.id}', '${content.id}', this.value)"
-            >${escapeHtml(content.notes || '')}</textarea>
-          </div>
-          
-          <div class="todo-list" id="todo-list-${content.id}">
-            ${renderTodos(subject.id, content)}
-          </div>
 
-          <!-- Quick Inline Add Todo -->
-          <form class="add-todo-inline" onsubmit="handleInlineAddTodo('${subject.id}', '${content.id}', event)">
-            <input 
-              type="text" 
-              class="add-todo-input" 
-              id="input-todo-${content.id}"
-              placeholder="${t('add_task_placeholder')}" 
-              autocomplete="off"
-            />
-            <button type="submit" class="btn btn-primary btn-sm">
-              ${PLUS_ICON} ${t('add_task_btn')}
-            </button>
-          </form>
+            <div class="content-notes-box">
+              <div class="content-notes-header">
+                <div class="content-notes-header-left">
+                  <span class="material-symbols-rounded">lightbulb</span>
+                  <span>${t('notes_and_tips')}</span>
+                </div>
+                <span class="autosave-micro-hint" id="hint-notes-${content.id}">autosaved</span>
+              </div>
+              <textarea 
+                class="content-notes-textarea" 
+                id="textarea-notes-${content.id}"
+                placeholder="${t('notes_placeholder')}"
+                rows="2"
+                oninput="handleInlineNotesInput('${subject.id}', '${content.id}', this.value)"
+                onblur="handleInlineNotesBlur('${subject.id}', '${content.id}', this.value)"
+              >${escapeHtml(content.notes || '')}</textarea>
+            </div>
+            
+            <div class="todo-list" id="todo-list-${content.id}">
+              ${renderTodos(subject.id, content)}
+            </div>
+
+            <!-- Quick Inline Add Todo -->
+            <form class="add-todo-inline" onsubmit="handleInlineAddTodo('${subject.id}', '${content.id}', event)">
+              <input 
+                type="text" 
+                class="add-todo-input" 
+                id="input-todo-${content.id}"
+                placeholder="${t('add_task_placeholder')}" 
+                autocomplete="off"
+              />
+              <button type="submit" class="btn btn-primary btn-sm">
+                ${PLUS_ICON} ${t('add_task_btn')}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     `;
@@ -1165,6 +1194,8 @@ function renderSemesterView() {
   const container = document.getElementById('semester-subjects-list');
   if (!container) return;
 
+  ensureGeneralTasksSubject();
+
   if (state.subjects.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
@@ -1176,8 +1207,9 @@ function renderSemesterView() {
     return;
   }
 
+  const sorted = sortSubjectsChronologically(state.subjects);
   let html = '';
-  state.subjects.forEach(subject => {
+  sorted.forEach(subject => {
     const progress = getSubjectProgress(subject);
     const examInfo = getSubjectNextExam(subject);
 
@@ -1186,16 +1218,17 @@ function renderSemesterView() {
       examDateText = `${t('exam_in_days', { days: examInfo.nearestUpcoming.days })} (${formatDate(examInfo.nearestUpcoming.dateStr)})`;
     }
 
-    const symbol = getSubjectSymbol(subject);
+    const isPinned = subject.isPinned || subject.id === GENERAL_TASKS_ID;
 
     html += `
-      <div class="subject-manage-item" style="border-left: 6px solid ${subject.color || '#3b82f7'}">
+      <div class="subject-manage-item ${isPinned ? 'is-pinned' : ''}" style="border-left: 6px solid ${subject.color || '#3b82f7'}">
         <div style="display:flex; align-items:center; gap:0.85rem; min-width:0;">
           <div class="subject-icon-box" style="--subject-color: ${subject.color || '#3b82f7'}">
-            <span class="material-symbols-rounded">${symbol}</span>
+            ${renderSubjectIcon(subject)}
           </div>
           <div style="min-width:0;">
-            <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
+            <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              ${isPinned ? `<span class="pinned-badge"><span class="material-symbols-rounded">push_pin</span> ${t('pinned_badge')}</span>` : ''}
               ${escapeHtml(subject.name)}
               ${subject.code ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHtml(subject.code)})</span>` : ''}
             </div>
@@ -1215,10 +1248,14 @@ function renderSemesterView() {
             <span class="material-symbols-rounded icon-sm">edit</span>
             ${t('edit_btn')}
           </button>
-          <button class="btn btn-danger btn-sm" onclick="deleteSubject('${subject.id}')">
-            <span class="material-symbols-rounded icon-sm">delete</span>
-            ${t('delete_btn')}
-          </button>
+          ${!isPinned ? `
+            <button class="btn btn-danger btn-sm" onclick="deleteSubject('${subject.id}')">
+              <span class="material-symbols-rounded icon-sm">delete</span>
+              ${t('delete_btn')}
+            </button>
+          ` : `
+            <span class="pinned-badge" title="${t('general_tasks_cannot_delete')}"><span class="material-symbols-rounded">lock</span></span>
+          `}
         </div>
       </div>
     `;
@@ -1256,13 +1293,13 @@ function renderIconPalette() {
   const container = document.getElementById('icon-palette-container');
   if (!container) return;
 
-  container.innerHTML = PRESET_ICONS.map(iconName => `
+  container.innerHTML = PRESET_EMOJIS.map(emoji => `
     <button 
       type="button" 
-      class="icon-opt-btn ${state.selectedIcon === iconName ? 'active' : ''}" 
-      onclick="selectIcon('${iconName}')"
-      title="${iconName.replace(/_/g, ' ')}">
-      <span class="material-symbols-rounded">${iconName}</span>
+      class="icon-opt-btn ${state.selectedIcon === emoji ? 'active' : ''}" 
+      onclick="selectIcon('${emoji}')"
+      title="Emoji ${emoji}">
+      <span class="subject-emoji-icon">${emoji}</span>
     </button>
   `).join('');
 }
@@ -1286,6 +1323,10 @@ function selectIcon(iconName) {
   state.selectedIcon = iconName;
   const hiddenInput = document.getElementById('selected-icon-input');
   if (hiddenInput) hiddenInput.value = iconName;
+  const customInput = document.getElementById('custom-emoji-input');
+  if (customInput) {
+    customInput.value = PRESET_EMOJIS.includes(iconName) ? '' : iconName;
+  }
   renderIconPalette();
   if (state.editingSubjectId) {
     const subject = state.subjects.find(s => s.id === state.editingSubjectId);
@@ -1298,31 +1339,69 @@ function selectIcon(iconName) {
   }
 }
 
-// --- Accordion Toggle Handlers ---
+function selectCustomEmoji(val) {
+  const emoji = (val || '').trim();
+  if (!emoji) return;
+  state.selectedIcon = emoji;
+  const hiddenInput = document.getElementById('selected-icon-input');
+  if (hiddenInput) hiddenInput.value = emoji;
+  renderIconPalette();
+  if (state.editingSubjectId) {
+    const subject = state.subjects.find(s => s.id === state.editingSubjectId);
+    if (subject) {
+      subject.icon = emoji;
+      subject.emoji = emoji;
+      saveToStorage(true);
+      renderSemesterView();
+    }
+  }
+}
+
+// --- Accordion Toggle Handlers (Material You Expressive Transitions) ---
 function toggleSubject(subjectId, event) {
   if (event) {
-    if (event.target.closest('button') || event.target.closest('input')) return;
+    if (event.target.closest('button') || event.target.closest('input') || event.target.closest('a')) return;
   }
 
+  const card = document.getElementById(`subject-card-${subjectId}`);
   if (state.expandedSubjectIds.has(subjectId)) {
     state.expandedSubjectIds.delete(subjectId);
+    if (card) {
+      card.classList.remove('is-expanded');
+    } else {
+      renderStudiesView();
+    }
   } else {
     state.expandedSubjectIds.add(subjectId);
+    if (card) {
+      card.classList.add('is-expanded');
+    } else {
+      renderStudiesView();
+    }
   }
-  renderStudiesView();
 }
 
 function toggleContent(contentId, event) {
   if (event) {
-    if (event.target.closest('button') || event.target.closest('input')) return;
+    if (event.target.closest('button') || event.target.closest('input') || event.target.closest('label') || event.target.closest('textarea')) return;
   }
 
+  const card = document.getElementById(`content-card-${contentId}`);
   if (state.expandedContentIds.has(contentId)) {
     state.expandedContentIds.delete(contentId);
+    if (card) {
+      card.classList.remove('is-expanded');
+    } else {
+      renderStudiesView();
+    }
   } else {
     state.expandedContentIds.add(contentId);
+    if (card) {
+      card.classList.add('is-expanded');
+    } else {
+      renderStudiesView();
+    }
   }
-  renderStudiesView();
 }
 
 function expandAll() {
@@ -1330,14 +1409,16 @@ function expandAll() {
     state.expandedSubjectIds.add(s.id);
     (s.contents || []).forEach(c => state.expandedContentIds.add(c.id));
   });
-  renderStudiesView();
+  document.querySelectorAll('.subject-card').forEach(card => card.classList.add('is-expanded'));
+  document.querySelectorAll('.content-item-card').forEach(card => card.classList.add('is-expanded'));
   showToast(t('toast_all_expanded'));
 }
 
 function collapseAll() {
   state.expandedSubjectIds.clear();
   state.expandedContentIds.clear();
-  renderStudiesView();
+  document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('is-expanded'));
+  document.querySelectorAll('.content-item-card').forEach(card => card.classList.remove('is-expanded'));
   showToast(t('toast_all_collapsed'));
 }
 
@@ -1390,6 +1471,17 @@ function toggleLanguage() {
   const current = getLanguage();
   const next = current === 'pt-BR' ? 'en-US' : 'pt-BR';
   setLanguage(next);
+  // Auto-translate default General Tasks name/content if unchanged
+  const generalSubject = state.subjects.find(s => s.id === GENERAL_TASKS_ID || s.isGeneralTasks);
+  if (generalSubject) {
+    if (generalSubject.name === 'Tarefas Gerais' || generalSubject.name === 'General Tasks') {
+      generalSubject.name = t('general_tasks_title');
+    }
+    const defContent = (generalSubject.contents || []).find(c => c.id === 'general-content-default');
+    if (defContent && (defContent.title === 'Tarefas Rápidas & Diárias' || defContent.title === 'Quick & Daily To-Dos')) {
+      defContent.title = t('general_tasks_default_content');
+    }
+  }
   updateLanguageUI();
   renderApp();
   showToast(next === 'pt-BR' ? 'Idioma alterado para Português (Brasil)' : 'Language switched to English (US)');
@@ -1407,7 +1499,7 @@ function handleSaveSubject(event) {
     return;
   }
 
-  const icon = state.selectedIcon || 'medical_services';
+  const icon = state.selectedIcon || '📚';
   const color = state.selectedColor || '#3b82f7';
   const code = codeInput ? codeInput.value.trim() : '';
 
@@ -1447,6 +1539,9 @@ function handleSaveSubject(event) {
   // Reset form
   nameInput.value = '';
   if (codeInput) codeInput.value = '';
+  const customEmojiInput = document.getElementById('custom-emoji-input');
+  if (customEmojiInput) customEmojiInput.value = '';
+  selectIcon(PRESET_EMOJIS[0]);
   saveToStorage();
   renderApp();
 }
@@ -1461,7 +1556,12 @@ function editSubject(subjectId) {
     document.getElementById('subject-code-input').value = subject.code || '';
   }
   selectColor(subject.color || PRESET_COLORS[0]);
-  selectIcon(getSubjectSymbol(subject));
+  const icon = subject.icon || subject.emoji || '📚';
+  selectIcon(icon);
+  const customEmojiInput = document.getElementById('custom-emoji-input');
+  if (customEmojiInput) {
+    customEmojiInput.value = PRESET_EMOJIS.includes(icon) ? '' : icon;
+  }
 
   document.getElementById('subject-form-title').innerHTML = `
     <span class="material-symbols-rounded" style="color:var(--primary);">edit</span>
@@ -1479,6 +1579,9 @@ function cancelEditSubject() {
   if (document.getElementById('subject-code-input')) {
     document.getElementById('subject-code-input').value = '';
   }
+  const customEmojiInput = document.getElementById('custom-emoji-input');
+  if (customEmojiInput) customEmojiInput.value = '';
+  selectIcon(PRESET_EMOJIS[0]);
   document.getElementById('subject-form-title').innerHTML = `
     <span class="material-symbols-rounded" style="color:var(--primary);">library_add</span>
     <span>${t('add_new_subject')}</span>
@@ -1490,6 +1593,11 @@ function cancelEditSubject() {
 function deleteSubject(subjectId) {
   const subject = state.subjects.find(s => s.id === subjectId);
   if (!subject) return;
+
+  if (subject.isPinned || subject.id === GENERAL_TASKS_ID || subject.isGeneralTasks) {
+    showToast(t('general_tasks_cannot_delete'), 'warning');
+    return;
+  }
 
   const confirmMsg = t('confirm_delete_subject', { name: subject.name });
   if (!confirm(confirmMsg)) return;
@@ -1926,6 +2034,7 @@ window.cancelEditSubject = cancelEditSubject;
 window.deleteSubject = deleteSubject;
 window.selectColor = selectColor;
 window.selectIcon = selectIcon;
+window.selectCustomEmoji = selectCustomEmoji;
 window.openAddContentModal = openAddContentModal;
 window.openEditContentModal = openEditContentModal;
 window.closeContentModal = closeContentModal;

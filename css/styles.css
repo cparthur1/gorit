@@ -564,6 +564,45 @@ body {
   color: #f59e0b;
 }
 
+/* Pinned Subject (General Tasks) */
+.pinned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--on-primary-container);
+  background: var(--primary-container);
+  border: 1px solid rgba(59, 130, 247, 0.35);
+  border-radius: var(--radius-full);
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.pinned-badge .material-symbols-rounded {
+  font-size: 14px;
+  color: var(--primary);
+}
+
+.subject-card.is-pinned {
+  border-color: rgba(59, 130, 247, 0.35);
+  box-shadow: 0 4px 18px rgba(59, 130, 247, 0.08);
+}
+
+/* Subject Emoji Icon */
+.subject-emoji-icon {
+  font-size: 1.55rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.icon-opt-btn .subject-emoji-icon {
+  font-size: 1.4rem;
+}
+
 .subject-meta-chips {
   display: flex;
   align-items: center;
@@ -673,16 +712,31 @@ body {
   transform: rotate(180deg);
 }
 
-/* Subject Contents Section */
-.subject-contents-drawer {
-  display: none;
-  padding: 1.25rem;
-  background: color-mix(in srgb, var(--surface-container-low) 50%, var(--bg-surface));
-  border-top: 1px solid var(--border-color);
+/* Subject Contents Section (M3 Expressive Animated Drawer) */
+.subject-contents-drawer-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 340ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-.subject-card.is-expanded .subject-contents-drawer {
-  display: block;
+.subject-card.is-expanded > .subject-contents-drawer-wrapper {
+  grid-template-rows: 1fr;
+}
+
+.subject-contents-drawer {
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 1.25rem;
+  background: color-mix(in srgb, var(--surface-container-low) 50%, var(--bg-surface));
+  border-top: 1px solid transparent;
+  transition: padding 340ms cubic-bezier(0.2, 0, 0, 1), opacity 260ms cubic-bezier(0.2, 0, 0, 1), border-color 340ms cubic-bezier(0.2, 0, 0, 1);
+  opacity: 0;
+}
+
+.subject-card.is-expanded > .subject-contents-drawer-wrapper > .subject-contents-drawer {
+  padding: 1.25rem;
+  border-top-color: var(--border-color);
+  opacity: 1;
 }
 
 .contents-header-bar {
@@ -849,12 +903,31 @@ body {
   transform: rotate(180deg);
 }
 
-/* Tasks Box */
+/* Tasks Box (M3 Expressive Animated Drawer) */
+.content-tasks-drawer-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.content-item-card.is-expanded > .content-tasks-drawer-wrapper {
+  grid-template-rows: 1fr;
+}
+
 .content-tasks-drawer {
-  display: none;
-  padding: 1rem 1.15rem;
+  overflow: hidden;
+  min-height: 0;
+  padding: 0 1.15rem;
   background: var(--surface-container-low);
-  border-top: 1px dashed var(--border-color);
+  border-top: 1px dashed transparent;
+  transition: padding 300ms cubic-bezier(0.2, 0, 0, 1), opacity 240ms cubic-bezier(0.2, 0, 0, 1), border-color 300ms cubic-bezier(0.2, 0, 0, 1);
+  opacity: 0;
+}
+
+.content-item-card.is-expanded > .content-tasks-drawer-wrapper > .content-tasks-drawer {
+  padding: 1rem 1.15rem;
+  border-top-color: var(--border-color);
+  opacity: 1;
 }
 
 .content-drawer-header-actions {
