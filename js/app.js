@@ -15,7 +15,9 @@ import {
   fetchUserProStatus,
   saveGoritToCloud,
   loadGoritFromCloud,
-  listenGoritCloud
+  listenGoritCloud,
+  shareSubjectToCloud,
+  loadSharedSubjectFromCloud
 } from './firebase-client.js';
 
 // --- Vector / Symbol Helpers ---
@@ -412,17 +414,20 @@ async function syncToServer() {
   isSyncingToServer = true;
 
   try {
-    const payload = JSON.stringify(state.subjects);
-    const res = await fetch('/api/data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: payload
-    });
+    const isLocalServer = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+    if (isLocalServer) {
+      const payload = JSON.stringify(state.subjects);
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: payload
+      });
 
-    if (!res.ok) {
-      throw new Error(`Server returned status ${res.status}`);
+      if (!res.ok) {
+        throw new Error(`Server returned status ${res.status}`);
+      }
     }
 
     // If user is PRO, also push to Cloud Firestore silently
@@ -529,7 +534,12 @@ async function loadFromStorage() {
     renderApp();
   }
 
-  // Fetch persisted data from the server hosting device
+  // Fetch persisted data from the server hosting device (only when running local server)
+  const isLocalServer = ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname);
+  if (!isLocalServer) {
+    return;
+  }
+
   try {
     const res = await fetch('/api/data');
     if (res.ok) {
@@ -542,13 +552,10 @@ async function loadFromStorage() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
         renderApp();
         updateAutosaveBadge('saved');
-      } else if (localData && localData.length > 0) {
-        // Migrate existing browser data to host file
-        ensureGeneralTasksSubject();
-        await syncToServer();
       } else {
         state.subjects = [];
         ensureGeneralTasksSubject();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
         renderApp();
         updateAutosaveBadge('saved');
       }
@@ -798,6 +805,7 @@ function renderStudiesView() {
   const firstUpcomingExamSubject = filteredSubjects.find(s => !s.isPinned && s.id !== GENERAL_TASKS_ID && getSubjectNextExam(s).nearestUpcoming);
 
   filteredSubjects.forEach((subject, subIndex) => {
+    const isPinned = subject.isPinned || subject.id === GENERAL_TASKS_ID;
     const isSubjectExpanded = state.expandedSubjectIds.has(subject.id);
     const subProgress = getSubjectProgress(subject);
     const examInfo = getSubjectNextExam(subject);
@@ -885,8 +893,15 @@ function renderStudiesView() {
             </div>
           </div>
 
-          <div class="subject-chevron">
-            <span class="material-symbols-rounded">expand_more</span>
+          <div style="display:flex; align-items:center; gap:0.4rem;">
+            ${!isPinned ? `
+              <button class="btn-icon btn-sm subject-share-btn" onclick="handleShareSubject('${subject.id}', event)" title="${t('share_subject_btn')}">
+                <span class="material-symbols-rounded icon-sm">share</span>
+              </button>
+            ` : ''}
+            <div class="subject-chevron">
+              <span class="material-symbols-rounded">expand_more</span>
+            </div>
           </div>
         </div>
 
@@ -899,6 +914,12 @@ function renderStudiesView() {
                 ${t('contents_header', { count: (subject.contents || []).length })}
               </div>
               <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                ${!isPinned ? `
+                  <button class="btn btn-outline btn-sm" onclick="handleShareSubject('${subject.id}', event)" title="${t('share_subject_btn')}">
+                    <span class="material-symbols-rounded icon-sm">share</span>
+                    <span>${t('share_subject_btn')}</span>
+                  </button>
+                ` : ''}
                 ${(subject.contents || []).length > 0 ? `
                   <button class="btn btn-outline btn-sm" onclick="toggleAllSubjectContents('${subject.id}', event)" title="${t('toggle_all_tooltip')}">
                     <span class="material-symbols-rounded icon-sm">${isSubjectAllDone(subject) ? 'restart_alt' : 'done_all'}</span>
@@ -927,6 +948,8 @@ function renderStudiesView() {
   container.querySelectorAll('.content-checkbox[data-indeterminate="true"]').forEach(el => {
     el.indeterminate = true;
   });
+
+  updateHeaderToggleAllBtn();
 }
 
 // --- Render: Contents inside a Subject ---
@@ -1099,7 +1122,7 @@ function renderContentsList(subject) {
               ${renderTodos(subject.id, content)}
             </div>
 
-            <!-- Quick Inline Add Todo -->
+            <!-- Quick Inline Add Todo with optional priority & reminder controls -->
             <form class="add-todo-inline" onsubmit="handleInlineAddTodo('${subject.id}', '${content.id}', event)">
               <input 
                 type="text" 
@@ -1108,6 +1131,18 @@ function renderContentsList(subject) {
                 placeholder="${t('add_task_placeholder')}" 
                 autocomplete="off"
               />
+              <label class="todo-date-picker-label" title="${t('due_date_label')}">
+                <span class="material-symbols-rounded">alarm</span>
+                <input type="date" id="input-todo-date-${content.id}" class="todo-date-input" title="${t('due_date_label')}" />
+              </label>
+              <button 
+                type="button" 
+                class="todo-action-icon-btn todo-inline-daily-btn" 
+                id="input-todo-daily-${content.id}"
+                onclick="toggleInlineDailyReminderBtn('${content.id}')"
+                title="${t('daily_reminder_tooltip')}">
+                <span class="material-symbols-rounded">event_repeat</span>
+              </button>
               <button type="submit" class="btn btn-primary btn-sm">
                 ${PLUS_ICON} ${t('add_task_btn')}
               </button>
@@ -1119,6 +1154,34 @@ function renderContentsList(subject) {
   }).join('');
 }
 
+// --- Prioritize / Sort Todos ---
+function sortTodosByPriority(todos) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  return [...todos].sort((a, b) => {
+    // 1. Incomplete items before completed items
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+
+    // 2. Overdue or due today items first
+    const aDueTodayOrPast = a.dueDate && a.dueDate <= todayStr;
+    const bDueTodayOrPast = b.dueDate && b.dueDate <= todayStr;
+    if (aDueTodayOrPast !== bDueTodayOrPast) return aDueTodayOrPast ? -1 : 1;
+
+    // 3. Daily reminders next
+    if (Boolean(a.dailyReminder) !== Boolean(b.dailyReminder)) {
+      return a.dailyReminder ? -1 : 1;
+    }
+
+    // 4. Specific upcoming due dates (earliest first)
+    if (a.dueDate && b.dueDate) {
+      return a.dueDate.localeCompare(b.dueDate);
+    }
+    if (a.dueDate && !b.dueDate) return -1;
+    if (!a.dueDate && b.dueDate) return 1;
+
+    return 0;
+  });
+}
+
 // --- Render: Todos inside a Content ---
 function renderTodos(subjectId, content) {
   const todos = content.todos || [];
@@ -1126,7 +1189,31 @@ function renderTodos(subjectId, content) {
     return `<div style="font-size:0.82rem; color:var(--text-muted); padding:0.4rem 0;">${t('no_tasks_placeholder')}</div>`;
   }
 
-  return todos.map(todo => {
+  const sortedTodos = sortTodosByPriority(todos);
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  return sortedTodos.map(todo => {
+    let dueBadgeHtml = '';
+    if (todo.dueDate) {
+      let dueClass = '';
+      let dueText = formatDate(todo.dueDate);
+      let dueIcon = 'event';
+      if (todo.dueDate === todayStr) {
+        dueClass = 'due-today';
+        dueText = t('due_today_badge');
+        dueIcon = 'today';
+      } else if (todo.dueDate < todayStr && !todo.completed) {
+        dueClass = 'due-overdue';
+        dueText = `${t('due_overdue_badge')} (${formatDate(todo.dueDate)})`;
+        dueIcon = 'warning';
+      }
+      dueBadgeHtml = `<span class="todo-due-pill ${dueClass}"><span class="material-symbols-rounded">${dueIcon}</span> ${dueText}</span>`;
+    }
+
+    const dailyBadgeHtml = todo.dailyReminder 
+      ? `<span class="todo-daily-pill" title="${t('daily_reminder_tooltip')}"><span class="material-symbols-rounded">event_repeat</span> ${t('daily_reminder_label')}</span>` 
+      : '';
+
     return `
       <div class="todo-row ${todo.completed ? 'completed' : ''}">
         <input 
@@ -1142,12 +1229,41 @@ function renderTodos(subjectId, content) {
           title="${t('click_to_edit_task')}"
           onblur="handleTodoTitleBlur('${subjectId}', '${content.id}', '${todo.id}', this)"
           onkeydown="handleTodoTitleKeydown(event, this)">${escapeHtml(todo.title)}</span>
-        <button 
-          class="todo-delete-btn" 
-          title="${t('delete_task')}" 
-          onclick="deleteTodo('${subjectId}', '${content.id}', '${todo.id}', event)">
-          <span class="material-symbols-rounded">close</span>
-        </button>
+        
+        <div class="todo-meta-badges">
+          ${dailyBadgeHtml}
+          ${dueBadgeHtml}
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.2rem;">
+          <!-- Daily reminder toggle -->
+          <button 
+            type="button" 
+            class="todo-action-icon-btn ${todo.dailyReminder ? 'is-active' : ''}" 
+            onclick="toggleTodoDailyReminder('${subjectId}', '${content.id}', '${todo.id}', event)" 
+            title="${t('daily_reminder_tooltip')}">
+            <span class="material-symbols-rounded">event_repeat</span>
+          </button>
+
+          <!-- Specific deadline date picker -->
+          <label class="todo-date-picker-label" title="${t('due_date_label')}">
+            <span class="material-symbols-rounded">alarm</span>
+            <input 
+              type="date" 
+              class="todo-date-input" 
+              value="${todo.dueDate || ''}" 
+              onchange="handleTodoDueDateChange('${subjectId}', '${content.id}', '${todo.id}', this.value, event)" 
+            />
+          </label>
+
+          <!-- Delete Task -->
+          <button 
+            class="todo-delete-btn" 
+            title="${t('delete_task')}" 
+            onclick="deleteTodo('${subjectId}', '${content.id}', '${todo.id}', event)">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
       </div>
     `;
   }).join('');
@@ -1213,6 +1329,10 @@ function renderSemesterView() {
             ${t('edit_btn')}
           </button>
           ${!isPinned ? `
+            <button class="btn btn-outline btn-sm" onclick="handleShareSubject('${subject.id}', event)" title="${t('share_subject_btn')}">
+              <span class="material-symbols-rounded icon-sm">share</span>
+              ${t('share_subject_btn')}
+            </button>
             <button class="btn btn-danger btn-sm" onclick="deleteSubject('${subject.id}')">
               <span class="material-symbols-rounded icon-sm">delete</span>
               ${t('delete_btn')}
@@ -1343,6 +1463,7 @@ function toggleSubject(subjectId, event) {
       renderStudiesView();
     }
   }
+  updateHeaderToggleAllBtn();
 }
 
 function toggleContent(contentId, event) {
@@ -1366,6 +1487,33 @@ function toggleContent(contentId, event) {
       renderStudiesView();
     }
   }
+  updateHeaderToggleAllBtn();
+}
+
+function updateHeaderToggleAllBtn() {
+  const btn = document.getElementById('header-toggle-all-btn');
+  const icon = document.getElementById('header-toggle-all-icon');
+  const label = document.getElementById('header-toggle-all-label');
+  if (!btn || !icon || !label) return;
+
+  const hasExpanded = state.expandedSubjectIds.size > 0 || state.expandedContentIds.size > 0;
+  if (hasExpanded) {
+    icon.textContent = 'unfold_less';
+    label.textContent = t('toggle_all_collapse');
+  } else {
+    icon.textContent = 'unfold_more';
+    label.textContent = t('toggle_all_expand');
+  }
+}
+
+function toggleExpandCollapseAll() {
+  const hasExpanded = state.expandedSubjectIds.size > 0 || state.expandedContentIds.size > 0;
+  if (hasExpanded) {
+    collapseAll();
+  } else {
+    expandAll();
+  }
+  updateHeaderToggleAllBtn();
 }
 
 function expandAll() {
@@ -1375,6 +1523,7 @@ function expandAll() {
   });
   document.querySelectorAll('.subject-card').forEach(card => card.classList.add('is-expanded'));
   document.querySelectorAll('.content-item-card').forEach(card => card.classList.add('is-expanded'));
+  updateHeaderToggleAllBtn();
 }
 
 function collapseAll() {
@@ -1382,6 +1531,7 @@ function collapseAll() {
   state.expandedContentIds.clear();
   document.querySelectorAll('.subject-card').forEach(card => card.classList.remove('is-expanded'));
   document.querySelectorAll('.content-item-card').forEach(card => card.classList.remove('is-expanded'));
+  updateHeaderToggleAllBtn();
 }
 
 // --- Tab Switching ---
@@ -1791,12 +1941,25 @@ function handleInlineAddTodo(subjectId, contentId, event) {
   const content = (subject.contents || []).find(c => c.id === contentId);
   if (!content) return;
 
+  const dateInput = document.getElementById(`input-todo-date-${contentId}`);
+  const dailyBtn = document.getElementById(`input-todo-daily-${contentId}`);
+
+  const dueDate = dateInput && dateInput.value ? dateInput.value : null;
+  const dailyReminder = dailyBtn ? dailyBtn.classList.contains('is-active') : false;
+
   content.todos = content.todos || [];
   content.todos.push({
     id: 'td-' + Date.now(),
     title: text,
-    completed: false
+    completed: false,
+    dueDate,
+    dailyReminder
   });
+
+  // Reset inputs
+  input.value = '';
+  if (dateInput) dateInput.value = '';
+  if (dailyBtn) dailyBtn.classList.remove('is-active');
 
   // Adding a new incomplete task means the content as a whole is incomplete
   content.completed = false;
@@ -1809,6 +1972,41 @@ function handleInlineAddTodo(subjectId, contentId, event) {
     const nextInput = document.getElementById(`input-todo-${contentId}`);
     if (nextInput) nextInput.focus();
   }, 40);
+}
+
+function toggleTodoDailyReminder(subjectId, contentId, todoId, event) {
+  if (event) event.stopPropagation();
+  const subject = state.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+  const content = (subject.contents || []).find(c => c.id === contentId);
+  if (!content) return;
+  const todo = (content.todos || []).find(t => t.id === todoId);
+  if (!todo) return;
+
+  todo.dailyReminder = !todo.dailyReminder;
+  saveToStorage(true);
+  renderApp();
+}
+
+function handleTodoDueDateChange(subjectId, contentId, todoId, newDate, event) {
+  if (event) event.stopPropagation();
+  const subject = state.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+  const content = (subject.contents || []).find(c => c.id === contentId);
+  if (!content) return;
+  const todo = (content.todos || []).find(t => t.id === todoId);
+  if (!todo) return;
+
+  todo.dueDate = newDate || null;
+  saveToStorage(true);
+  renderApp();
+}
+
+function toggleInlineDailyReminderBtn(contentId) {
+  const btn = document.getElementById(`input-todo-daily-${contentId}`);
+  if (btn) {
+    btn.classList.toggle('is-active');
+  }
 }
 
 function toggleTodoStatus(subjectId, contentId, todoId, completed) {
@@ -2015,6 +2213,10 @@ window.handleInlineNotesInput = handleInlineNotesInput;
 window.handleInlineNotesBlur = handleInlineNotesBlur;
 window.loadSampleData = loadSampleData;
 window.toggleLanguage = toggleLanguage;
+window.toggleExpandCollapseAll = toggleExpandCollapseAll;
+window.toggleTodoDailyReminder = toggleTodoDailyReminder;
+window.handleTodoDueDateChange = handleTodoDueDateChange;
+window.toggleInlineDailyReminderBtn = toggleInlineDailyReminderBtn;
 
 // --- User Account & Cloud Sync (Flashcards PRO Integration) ---
 let pendingCloudSubjects = null;
@@ -2157,18 +2359,18 @@ function openAccountModal() {
   const modal = document.getElementById('account-modal');
   if (modal) {
     renderAccountModal();
-    modal.classList.add('active');
+    modal.classList.add('is-open', 'active');
   }
 }
 
 function closeAccountModal() {
   const modal = document.getElementById('account-modal');
-  if (modal) modal.classList.remove('active');
+  if (modal) modal.classList.remove('is-open', 'active');
 }
 
 function closeCloudPromptModal() {
   const modal = document.getElementById('cloud-prompt-modal');
-  if (modal) modal.classList.remove('active');
+  if (modal) modal.classList.remove('is-open', 'active');
   pendingCloudSubjects = null;
 }
 
@@ -2281,7 +2483,7 @@ async function onUserAuthenticated(user) {
           promptDesc.textContent = t('cloud_data_found_desc').replace('{count}', cloudGorit.subjects.length);
         }
         const promptModal = document.getElementById('cloud-prompt-modal');
-        if (promptModal) promptModal.classList.add('active');
+        if (promptModal) promptModal.classList.add('is-open', 'active');
       }
     } else if (state.subjects && state.subjects.length > 0) {
       // Cloud is empty: push local data to cloud
@@ -2312,6 +2514,161 @@ async function onUserAuthenticated(user) {
   }
 }
 
+// --- PRO Subject Sharing via Direct Link ---
+let currentShareUrl = '';
+let pendingImportShareData = null;
+
+async function handleShareSubject(subjectId, event) {
+  if (event) event.stopPropagation();
+
+  const subject = state.subjects.find(s => s.id === subjectId);
+  if (!subject) return;
+
+  // Check PRO status
+  if (!state.currentUser || !state.isPro) {
+    const proModal = document.getElementById('share-pro-modal');
+    if (proModal) proModal.classList.add('is-open', 'active');
+    return;
+  }
+
+  // Generate share link via Firestore
+  const res = await shareSubjectToCloud(subject);
+  if (res && res.success) {
+    currentShareUrl = res.shareUrl;
+    const titleEl = document.getElementById('share-link-modal-title');
+    if (titleEl) titleEl.textContent = `${t('share_subject_btn')}: ${subject.name}`;
+    const inputEl = document.getElementById('share-link-input');
+    if (inputEl) inputEl.value = res.shareUrl;
+    const btnText = document.getElementById('share-copy-btn-text');
+    if (btnText) btnText.textContent = t('share_subject_copy_btn');
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(res.shareUrl).catch(() => {});
+    }
+
+    const modal = document.getElementById('share-link-modal');
+    if (modal) modal.classList.add('is-open', 'active');
+  } else {
+    showToast(t('share_error_toast'), 'danger');
+  }
+}
+
+function closeShareLinkModal() {
+  const modal = document.getElementById('share-link-modal');
+  if (modal) modal.classList.remove('is-open', 'active');
+}
+
+function closeShareProModal() {
+  const modal = document.getElementById('share-pro-modal');
+  if (modal) modal.classList.remove('is-open', 'active');
+}
+
+async function copyShareLink() {
+  const inputEl = document.getElementById('share-link-input');
+  const btnText = document.getElementById('share-copy-btn-text');
+  if (!inputEl) return;
+
+  try {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(inputEl.value);
+    } else {
+      inputEl.select();
+      document.execCommand('copy');
+    }
+    if (btnText) btnText.textContent = t('share_subject_copied');
+    setTimeout(() => {
+      if (btnText) btnText.textContent = t('share_subject_copy_btn');
+    }, 2500);
+  } catch (err) {
+    inputEl.select();
+  }
+}
+
+async function checkForSharedSubjectUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const shareSlug = params.get('share');
+  if (!shareSlug) return;
+
+  try {
+    const sharedDoc = await loadSharedSubjectFromCloud(shareSlug);
+    if (!sharedDoc || !sharedDoc.subjectData) {
+      showToast(t('share_invalid_link_toast'), 'warning');
+      window.history.replaceState({}, '', window.location.pathname);
+      return;
+    }
+
+    pendingImportShareData = sharedDoc.subjectData;
+    const previewBox = document.getElementById('import-share-preview-box');
+    const subtitle = document.getElementById('import-share-subtitle');
+    if (subtitle && sharedDoc.sharedBy?.name) {
+      subtitle.textContent = `Compartilhado por ${sharedDoc.sharedBy.name}`;
+    }
+
+    if (previewBox) {
+      const sub = sharedDoc.subjectData;
+      const contentsCount = (sub.contents || []).length;
+      previewBox.innerHTML = `
+        <div style="display:flex; align-items:center; gap:0.85rem; margin-bottom:0.75rem;">
+          <div class="subject-icon-box" style="--subject-color: ${sub.color || '#3b82f7'}">
+            ${renderSubjectIcon(sub)}
+          </div>
+          <div>
+            <div style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">
+              ${escapeHtml(sub.name)}
+              ${sub.code ? `<span style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">(${escapeHtml(sub.code)})</span>` : ''}
+            </div>
+            <div style="font-size:0.82rem; color:var(--text-muted);">
+              ${contentsCount} ${contentsCount === 1 ? 'conteúdo' : 'conteúdos e datas de provas'}
+            </div>
+          </div>
+        </div>
+        ${(sub.contents || []).slice(0, 4).map(c => `
+          <div style="font-size:0.82rem; padding:0.25rem 0; color:var(--text-secondary); display:flex; justify-content:space-between;">
+            <span>• ${escapeHtml(c.title)}</span>
+            ${c.examDate ? `<span style="color:var(--primary); font-weight:600;">${formatDate(c.examDate)}</span>` : ''}
+          </div>
+        `).join('')}
+        ${contentsCount > 4 ? `<div style="font-size:0.78rem; color:var(--text-muted); margin-top:0.35rem;">+ mais ${contentsCount - 4} tópicos...</div>` : ''}
+      `;
+    }
+
+    const modal = document.getElementById('import-share-modal');
+    if (modal) modal.classList.add('is-open', 'active');
+  } catch (err) {
+    console.error('Error checking shared link:', err);
+  }
+}
+
+function closeImportShareModal() {
+  const modal = document.getElementById('import-share-modal');
+  if (modal) modal.classList.remove('is-open', 'active');
+  pendingImportShareData = null;
+  window.history.replaceState({}, '', window.location.pathname);
+}
+
+function confirmImportSharedSubject() {
+  if (!pendingImportShareData) return;
+
+  const newSubject = {
+    ...pendingImportShareData,
+    id: 'sub-' + Date.now(),
+    contents: (pendingImportShareData.contents || []).map(c => ({
+      ...c,
+      id: 'cnt-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      isCompleted: false,
+      todos: []
+    }))
+  };
+
+  state.subjects.push(newSubject);
+  state.expandedSubjectIds.add(newSubject.id);
+  saveToStorage(true);
+  renderApp();
+
+  closeImportShareModal();
+  showToast(t('import_share_success', { name: newSubject.name }), 'success');
+}
+
 function initAuthSync() {
   onAuthChange(async (user) => {
     if (user) {
@@ -2336,6 +2693,25 @@ window.rejectCloudData = rejectCloudData;
 window.handleGoogleSignIn = handleGoogleSignIn;
 window.handleGoogleSignOut = handleGoogleSignOut;
 window.handleManualCloudSync = handleManualCloudSync;
+window.handleShareSubject = handleShareSubject;
+window.closeShareLinkModal = closeShareLinkModal;
+window.closeShareProModal = closeShareProModal;
+window.copyShareLink = copyShareLink;
+window.closeImportShareModal = closeImportShareModal;
+window.confirmImportSharedSubject = confirmImportSharedSubject;
+
+
+// Global Escape key handler to close any active modal dialog (M3 standard)
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeContentModal();
+    closeAccountModal();
+    closeCloudPromptModal();
+    closeShareLinkModal();
+    closeShareProModal();
+    closeImportShareModal();
+  }
+});
 
 // --- Service Worker Registration ---
 if ('serviceWorker' in navigator) {
@@ -2356,6 +2732,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderColorSwatches();
   renderIconPalette();
   loadFromStorage();
+  checkForSharedSubjectUrl();
   renderApp();
   initAuthSync();
 });

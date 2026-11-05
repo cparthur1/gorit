@@ -188,7 +188,36 @@ export const TRANSLATIONS = {
     general_tasks_default_content: 'Tarefas Rápidas & Diárias',
     general_tasks_cannot_delete: 'A lista de Tarefas Gerais é fixa e não pode ser excluída.',
     pinned_badge: 'Fixado',
-    custom_emoji_label: 'Ou digite/cole qualquer emoji:'
+    custom_emoji_label: 'Ou digite/cole qualquer emoji:',
+
+    // Quick Header Toggle
+    toggle_all_lists: 'Recolher/Expandir',
+    toggle_all_expand: 'Expandir Tudo',
+    toggle_all_collapse: 'Recolher Tudo',
+    toggle_all_tooltip: 'Expandir ou recolher todas as disciplinas e tarefas com um toque',
+
+    // General Tasks Prioritization & Daily Reminders
+    daily_reminder_label: 'Lembrete Diário',
+    daily_reminder_tooltip: 'Definir como Lembrete Diário recorrente',
+    due_date_label: 'Prazo específico',
+    due_today_badge: 'Hoje',
+    due_overdue_badge: 'Atrasado',
+
+    // Subject Sharing (PRO)
+    share_subject_btn: 'Compartilhar',
+    share_subject_title: 'Compartilhar Disciplina com Colega',
+    share_subject_desc: 'Seu colega receberá o mesmo cronograma com todos os tópicos e datas de prova, mas com progresso e tarefas próprios e independentes.',
+    share_subject_copy_btn: 'Copiar Link',
+    share_subject_copied: 'Link copiado!',
+    share_pro_required_title: 'Recurso Exclusivo Flashcards PRO',
+    share_pro_required_desc: 'O compartilhamento de disciplinas por link direto é um recurso exclusivo para assinantes PRO. Acesse sua conta ou faça upgrade para compartilhar cronogramas com amigos.',
+    import_share_title: 'Disciplina Compartilhada Recebida',
+    import_share_desc: 'Você recebeu a disciplina "{name}" ({count} conteúdos e datas de provas). Deseja adicioná-la aos seus estudos?',
+    import_share_notice: 'O cronograma e as datas de prova serão importados, mas seu progresso e tarefas serão 100% pessoais e independentes.',
+    import_share_btn: 'Adicionar aos Meus Estudos',
+    import_share_success: 'Disciplina "{name}" adicionada com sucesso!',
+    share_invalid_link_toast: 'O link de compartilhamento expirou ou é inválido.',
+    share_error_toast: 'Não foi possível gerar o link de compartilhamento. Tente novamente.'
   },
 
   'en-US': {
@@ -369,7 +398,36 @@ export const TRANSLATIONS = {
     general_tasks_default_content: 'Quick & Daily To-Dos',
     general_tasks_cannot_delete: 'General Tasks is pinned to top and cannot be deleted.',
     pinned_badge: 'Pinned',
-    custom_emoji_label: 'Or type/paste any emoji:'
+    custom_emoji_label: 'Or type/paste any emoji:',
+
+    // Quick Header Toggle
+    toggle_all_lists: 'Collapse/Expand',
+    toggle_all_expand: 'Expand All',
+    toggle_all_collapse: 'Collapse All',
+    toggle_all_tooltip: 'Expand or collapse all subjects and tasks with one tap',
+
+    // General Tasks Prioritization & Daily Reminders
+    daily_reminder_label: 'Daily Reminder',
+    daily_reminder_tooltip: 'Set as recurring daily reminder',
+    due_date_label: 'Specific deadline',
+    due_today_badge: 'Today',
+    due_overdue_badge: 'Overdue',
+
+    // Subject Sharing (PRO)
+    share_subject_btn: 'Share',
+    share_subject_title: 'Share Subject with a Friend',
+    share_subject_desc: 'Your friend will receive the exact same schedule with all contents and exam dates, with their own independent completion data and subtasks.',
+    share_subject_copy_btn: 'Copy Link',
+    share_subject_copied: 'Link copied!',
+    share_pro_required_title: 'Exclusive Flashcards PRO Feature',
+    share_pro_required_desc: 'Sharing subjects via direct link is an exclusive feature for PRO subscribers. Sign in or upgrade to share course schedules with friends.',
+    import_share_title: 'Shared Subject Received',
+    import_share_desc: 'You received the subject "{name}" ({count} contents and exam dates). Would you like to add it to your studies?',
+    import_share_notice: 'The schedule and exam deadlines will be imported, but your progress and subtasks will be 100% personal and independent.',
+    import_share_btn: 'Add to My Studies',
+    import_share_success: 'Subject "{name}" added successfully!',
+    share_invalid_link_toast: 'The sharing link has expired or is invalid.',
+    share_error_toast: 'Could not generate share link. Please try again.'
   }
 };
 

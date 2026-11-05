@@ -4,7 +4,7 @@
  * Gorit - Offline PWA Service Worker
  */
 
-const CACHE_NAME = 'gorit-v1.2.0';
+const CACHE_NAME = 'gorit-v1.3.2';
 
 const BASE_PATH = self.registration && self.registration.scope 
   ? new URL(self.registration.scope).pathname.replace(/\/$/, '') 

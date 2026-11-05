@@ -241,3 +241,84 @@ export function listenGoritCloud(callback) {
     console.warn('[Gorit Cloud] Snapshot listener warning:', err);
   });
 }
+
+/**
+ * Shares a single subject to Firestore 'shares' collection (Flashcards PRO Feature)
+ * Preserves contents & exam deadlines, but friend gets independent subtasks and completion
+ */
+export async function shareSubjectToCloud(subject) {
+  const user = auth.currentUser;
+  if (!user) return { success: false, reason: 'not_authenticated' };
+  if (!isUserPro(user)) return { success: false, reason: 'not_pro' };
+  if (!subject) return { success: false, reason: 'invalid_subject' };
+
+  try {
+    const shareSlug = `gorit-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
+    
+    // Clean contents: preserve titles, exam dates, notes, but provide fresh empty completion and subtasks
+    const cleanContents = (subject.contents || []).map(c => ({
+      id: `cnt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      title: c.title || '',
+      examDate: c.examDate || null,
+      notes: c.notes || '',
+      isCompleted: false,
+      todos: []
+    }));
+
+    const subjectData = {
+      name: subject.name,
+      code: subject.code || '',
+      color: subject.color || '#3b82f7',
+      icon: subject.icon || subject.emoji || '📚',
+      emoji: subject.icon || subject.emoji || '📚',
+      contents: cleanContents
+    };
+
+    const payload = {
+      type: 'gorit_subject',
+      shareSlug,
+      title: subject.name,
+      subjectData,
+      sharedBy: {
+        uid: user.uid,
+        name: user.displayName || user.email || 'Usuário PRO'
+      },
+      createdAt: Date.now()
+    };
+
+    await setDoc(doc(db, 'shares', shareSlug), payload);
+
+    const origin = window.location.origin;
+    const path = window.location.pathname.replace(/\/$/, '');
+    const shareUrl = `${origin}${path}/?share=${shareSlug}`;
+
+    return {
+      success: true,
+      shareSlug,
+      shareUrl,
+      subjectName: subject.name
+    };
+  } catch (err) {
+    console.error('[Gorit Share] Share error:', err);
+    return { success: false, error: err };
+  }
+}
+
+/**
+ * Loads a shared subject from Firestore 'shares' collection
+ */
+export async function loadSharedSubjectFromCloud(shareSlug) {
+  if (!shareSlug) return null;
+  try {
+    const snap = await getDoc(doc(db, 'shares', shareSlug));
+    if (snap.exists()) {
+      const data = snap.data();
+      if (data && (data.type === 'gorit_subject' || data.subjectData)) {
+        return data;
+      }
+    }
+  } catch (err) {
+    console.error('[Gorit Share] Fetch shared subject error:', err);
+  }
+  return null;
+}

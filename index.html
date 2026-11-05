@@ -13,6 +13,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#3b82f7" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Gorit" />
@@ -46,6 +47,12 @@
 
         <div class="header-right-group">
           <div class="header-actions">
+            <!-- Quick 1-Tap Toggle: Expand / Collapse All -->
+            <button class="btn btn-outline btn-sm header-toggle-all-btn" id="header-toggle-all-btn" onclick="toggleExpandCollapseAll()" data-i18n-title="toggle_all_tooltip" title="Recolher / Expandir Todas as Tarefas">
+              <span class="material-symbols-rounded icon-sm" id="header-toggle-all-icon">unfold_more</span>
+              <span id="header-toggle-all-label" data-i18n="toggle_all_lists">Expandir Tudo</span>
+            </button>
+
             <!-- User Account & Cloud Sync (Flashcards PRO Integration) -->
             <button class="btn btn-outline btn-sm account-btn" id="account-btn" onclick="openAccountModal()" data-i18n-title="account_btn_title" title="Minha Conta & Sincronização em Nuvem">
               <span class="material-symbols-rounded icon-sm" id="account-btn-icon">account_circle</span>
@@ -326,8 +333,8 @@
   <div class="toast-container" id="toast-container"></div>
 
   <!-- Account & Cloud Synchronization Modal (Material You Expressive) -->
-  <div class="modal-backdrop" id="account-modal">
-    <div class="modal-card account-modal-card">
+  <div class="modal-backdrop modal-overlay" id="account-modal" onclick="if(event.target === this) closeAccountModal()">
+    <div class="modal-card modal-content account-modal-card">
       <div class="modal-header">
         <div class="account-header-info">
           <h3 class="modal-title" data-i18n="account_modal_title">Minha Conta &amp; Sincronização</h3>
@@ -344,8 +351,8 @@
   </div>
 
   <!-- Cloud Data Hydration Prompt Modal -->
-  <div class="modal-backdrop" id="cloud-prompt-modal">
-    <div class="modal-card" style="max-width: 440px;">
+  <div class="modal-backdrop modal-overlay" id="cloud-prompt-modal" onclick="if(event.target === this) closeCloudPromptModal()">
+    <div class="modal-card modal-content" style="max-width: 440px;">
       <div class="modal-header">
         <h3 class="modal-title" data-i18n="cloud_data_found_title">Dados na Nuvem Encontrados</h3>
         <button class="btn-icon" onclick="closeCloudPromptModal()" title="Fechar">
@@ -359,6 +366,97 @@
         <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
           <button class="btn btn-outline btn-sm" onclick="rejectCloudData()" data-i18n="cloud_keep_local_btn">Manter Local</button>
           <button class="btn btn-primary btn-sm" onclick="acceptCloudData()" data-i18n="cloud_load_cloud_btn">Carregar da Nuvem</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Link Generated Modal (Material You Expressive) -->
+  <div class="modal-backdrop modal-overlay" id="share-link-modal" onclick="if(event.target === this) closeShareLinkModal()">
+    <div class="modal-card modal-content" style="max-width: 460px;">
+      <div class="modal-header">
+        <div class="account-header-info">
+          <h3 class="modal-title" id="share-link-modal-title" data-i18n="share_subject_title">Compartilhar Disciplina</h3>
+          <p class="account-subtitle" data-i18n="share_subject_desc">Seu colega receberá o mesmo cronograma com tópicos e datas de prova, com sub-tarefas e dados de conclusão individuais.</p>
+        </div>
+        <button class="btn-icon" onclick="closeShareLinkModal()" title="Fechar">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <input type="text" id="share-link-input" class="form-control" readonly style="font-size: 0.85rem;" />
+          <button class="btn btn-primary btn-sm" id="share-copy-btn" onclick="copyShareLink()">
+            <span class="material-symbols-rounded icon-sm">content_copy</span>
+            <span id="share-copy-btn-text" data-i18n="share_subject_copy_btn">Copiar Link</span>
+          </button>
+        </div>
+        <p style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+          <span class="material-symbols-rounded" style="font-size: 14px; vertical-align: middle; color: var(--primary);">info</span>
+          Qualquer colega com este link poderá adicionar esta disciplina aos estudos dele, com total privacidade (o progresso dele não afeta o seu).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share PRO Required Modal -->
+  <div class="modal-backdrop modal-overlay" id="share-pro-modal" onclick="if(event.target === this) closeShareProModal()">
+    <div class="modal-card modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <div class="account-header-info">
+          <h3 class="modal-title" data-i18n="share_pro_required_title">Recurso Exclusivo Flashcards PRO</h3>
+          <p class="account-subtitle" data-i18n="share_pro_required_desc">O compartilhamento de disciplinas por link é exclusivo para assinantes PRO.</p>
+        </div>
+        <button class="btn-icon" onclick="closeShareProModal()" title="Fechar">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div style="background: var(--surface-container-low); padding: 1rem; border-radius: var(--radius-md); border-left: 4px solid var(--primary);">
+          <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span class="material-symbols-rounded" style="color: var(--primary);">verified</span>
+            Flashcards PRO
+          </div>
+          <p style="font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45;">
+            Assinantes PRO do Spaiq Flashcards contam com sincronização em nuvem automática e podem compartilhar qualquer disciplina com seus colegas de turma por link direto.
+          </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="closeShareProModal()" data-i18n="cancel_btn">Cancelar</button>
+          <button class="btn btn-primary btn-sm" onclick="closeShareProModal(); openAccountModal();">
+            <span class="material-symbols-rounded icon-sm">account_circle</span>
+            <span data-i18n="auth_sign_in">Entrar com Minha Conta</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Shared Subject Received Modal -->
+  <div class="modal-backdrop modal-overlay" id="import-share-modal" onclick="if(event.target === this) closeImportShareModal()">
+    <div class="modal-card modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="account-header-info">
+          <h3 class="modal-title" data-i18n="import_share_title">Disciplina Compartilhada Recebida</h3>
+          <p class="account-subtitle" id="import-share-subtitle">Importe este cronograma para os seus estudos</p>
+        </div>
+        <button class="btn-icon" onclick="closeImportShareModal()" title="Fechar">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+      <div style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+        <div id="import-share-preview-box" style="background: var(--surface-container-low); padding: 1rem 1.15rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <!-- Injected dynamically -->
+        </div>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.45;" data-i18n="import_share_notice">
+          O cronograma e as datas de prova serão importados, mas seu progresso e tarefas serão 100% pessoais e independentes.
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button class="btn btn-outline btn-sm" onclick="closeImportShareModal()" data-i18n="cancel_btn">Cancelar</button>
+          <button class="btn btn-primary btn-sm" id="import-share-confirm-btn" onclick="confirmImportSharedSubject()">
+            <span class="material-symbols-rounded icon-sm">download</span>
+            <span data-i18n="import_share_btn">Adicionar aos Meus Estudos</span>
+          </button>
         </div>
       </div>
     </div>
