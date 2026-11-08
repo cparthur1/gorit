@@ -1306,40 +1306,42 @@ function renderSemesterView() {
 
     html += `
       <div class="subject-manage-item ${isPinned ? 'is-pinned' : ''}" style="border-left: 6px solid ${subject.color || '#3b82f7'}">
-        <div style="display:flex; align-items:center; gap:0.85rem; min-width:0;">
+        <div class="subject-manage-info">
           <div class="subject-icon-box" style="--subject-color: ${subject.color || '#3b82f7'}">
             ${renderSubjectIcon(subject)}
           </div>
-          <div style="min-width:0;">
-            <div style="font-size:1.05rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <div class="subject-manage-text">
+            <div class="subject-manage-title-row">
               ${isPinned ? `<span class="pinned-badge"><span class="material-symbols-rounded">push_pin</span> ${t('pinned_badge')}</span>` : ''}
-              ${escapeHtml(subject.name)}
-              ${subject.code ? `<span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${escapeHtml(subject.code)})</span>` : ''}
+              <span class="subject-manage-name">${escapeHtml(subject.name)}</span>
+              ${subject.code ? `<span class="subject-manage-code">(${escapeHtml(subject.code)})</span>` : ''}
             </div>
-            <div style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.2rem; display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-              <span>${t('stat_contents_count', { count: progress.contentsCount })}</span> • 
-              <span>${progress.percent}% (${progress.completed}/${progress.total} ${progress.hasAnyTodos ? 'tasks' : 'contents'})</span> • 
-              <span>${examDateText}</span>
+            <div class="subject-manage-meta">
+              <span class="subject-meta-item">${t('stat_contents_count', { count: progress.contentsCount })}</span>
+              <span class="meta-separator">•</span>
+              <span class="subject-meta-item">${progress.percent}% (${progress.completed}/${progress.total} ${progress.hasAnyTodos ? 'tasks' : 'contents'})</span>
+              <span class="meta-separator">•</span>
+              <span class="subject-meta-item">${examDateText}</span>
             </div>
           </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:0.45rem;">
-          <button class="btn btn-secondary btn-sm" onclick="openAddContentModal('${subject.id}')">
-            ${PLUS_ICON} ${t('content_btn')}
+        <div class="subject-manage-actions">
+          <button class="btn btn-secondary btn-sm" onclick="openAddContentModal('${subject.id}')" title="${t('content_btn')}">
+            ${PLUS_ICON} <span>${t('content_btn')}</span>
           </button>
-          <button class="btn btn-outline btn-sm" onclick="editSubject('${subject.id}')">
+          <button class="btn btn-outline btn-sm" onclick="editSubject('${subject.id}')" title="${t('edit_btn')}">
             <span class="material-symbols-rounded icon-sm">edit</span>
-            ${t('edit_btn')}
+            <span>${t('edit_btn')}</span>
           </button>
           ${!isPinned ? `
             <button class="btn btn-outline btn-sm" onclick="handleShareSubject('${subject.id}', event)" title="${t('share_subject_btn')}">
               <span class="material-symbols-rounded icon-sm">share</span>
-              ${t('share_subject_btn')}
+              <span>${t('share_subject_btn')}</span>
             </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteSubject('${subject.id}')">
+            <button class="btn btn-danger btn-sm" onclick="deleteSubject('${subject.id}')" title="${t('delete_btn')}">
               <span class="material-symbols-rounded icon-sm">delete</span>
-              ${t('delete_btn')}
+              <span>${t('delete_btn')}</span>
             </button>
           ` : `
             <span class="pinned-badge" title="${t('general_tasks_cannot_delete')}"><span class="material-symbols-rounded">lock</span></span>

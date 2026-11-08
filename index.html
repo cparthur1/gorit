@@ -223,13 +223,12 @@
               <div class="icon-palette" id="icon-palette-container">
                 <!-- Emojis injected by JS -->
               </div>
-              <div class="custom-emoji-row" style="margin-top: 0.65rem; display: flex; align-items: center; gap: 0.6rem;">
-                <span style="font-size: 0.85rem; color: var(--text-secondary);" data-i18n="custom_emoji_label">Or type/paste any emoji:</span>
+              <div class="custom-emoji-row">
+                <span class="custom-emoji-label" data-i18n="custom_emoji_label">Or type/paste any emoji:</span>
                 <input 
                   type="text" 
                   id="custom-emoji-input" 
-                  class="form-control" 
-                  style="width: 70px; text-align: center; font-size: 1.35rem; padding: 0.25rem 0.4rem;" 
+                  class="form-control custom-emoji-input" 
                   placeholder="💡"
                   maxlength="4"
                   oninput="selectCustomEmoji(this.value)"
@@ -246,7 +245,7 @@
               </div>
             </div>
 
-            <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
+            <div class="subject-form-actions">
               <button type="submit" id="subject-submit-btn" class="btn btn-primary" style="flex:1;">
                 <span class="material-symbols-rounded icon-sm">add</span>
                 <span data-i18n="add_subject">Add Subject</span>
