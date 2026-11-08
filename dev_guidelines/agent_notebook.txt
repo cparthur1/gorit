@@ -1,0 +1,1 @@
+Agents need to describe the functioning of the app and how 1 function interferes in another here each change, to help future developers
