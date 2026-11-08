@@ -1,276 +1,278 @@
 [
   {
-    "icon": "📌",
-    "emoji": "📌",
-    "id": "general-tasks",
     "color": "#3b82f7",
+    "emoji": "📌",
     "isPinned": true,
+    "name": "Tarefas Gerais",
+    "icon": "📌",
     "isGeneralTasks": true,
+    "id": "general-tasks",
+    "code": "",
     "contents": [
       {
-        "todos": [],
-        "notes": "",
         "id": "general-content-default",
-        "examDate": null,
+        "todos": [],
         "isCompleted": false,
+        "examDate": null,
+        "notes": "",
         "title": "Tarefas Rápidas & Diárias"
       }
-    ],
-    "code": "",
-    "name": "Tarefas Gerais"
+    ]
   },
   {
-    "id": "sub-1788899433756",
     "code": "",
+    "name": "Torácica",
+    "id": "sub-1788899433756",
+    "emoji": "🩻",
     "contents": [
       {
+        "examDate": "2026-09-17",
         "todos": [
           {
-            "title": "Pdf pré op",
             "id": "td-1788958689025",
-            "completed": true
+            "completed": true,
+            "title": "Pdf pré op"
           },
           {
-            "title": "Pdf pós op",
             "completed": true,
+            "title": "Pdf pós op",
             "id": "td-1788958695714"
           },
           {
+            "title": "Flashcards",
             "completed": true,
-            "id": "td-1788958699920",
-            "title": "Flashcards"
+            "id": "td-1788958699920"
           }
         ],
         "id": "cnt-1788899989452",
+        "completed": true,
         "notes": "",
-        "examDate": "2026-09-17",
-        "title": "Manuseio pré e pós-operatório em cirurgia torácica",
-        "completed": true
+        "title": "Manuseio pré e pós-operatório em cirurgia torácica"
       },
       {
-        "id": "cnt-1788900016865",
         "completed": true,
-        "title": "Deformidades da parede torácica",
         "examDate": "2026-09-17",
         "todos": [
           {
+            "title": "PDF",
             "id": "td-1788958738201",
-            "completed": true,
-            "title": "PDF"
+            "completed": true
           },
           {
+            "title": "Flashcards",
             "completed": true,
-            "id": "td-1788958742805",
-            "title": "Flashcards"
+            "id": "td-1788958742805"
           }
         ],
+        "title": "Deformidades da parede torácica",
+        "id": "cnt-1788900016865",
         "notes": ""
       },
       {
-        "completed": true,
-        "notes": "",
         "examDate": "2026-09-17",
         "todos": [],
+        "completed": true,
+        "notes": "",
         "id": "cnt-1793729029343",
         "title": "Bolhas pulmonares e pneumotórax"
       },
       {
+        "notes": "",
+        "title": "Tumores da parede torácica",
         "completed": true,
         "examDate": "2026-09-17",
-        "notes": "",
         "todos": [
           {
-            "title": "Sanar",
             "id": "td-1788958715389",
+            "title": "Sanar",
             "completed": true
           },
           {
+            "completed": true,
             "title": "Flashcards",
-            "id": "td-1788958720749",
-            "completed": true
+            "id": "td-1788958720749"
           }
         ],
-        "id": "cnt-1788900004031",
-        "title": "Tumores da parede torácica"
+        "id": "cnt-1788900004031"
       },
       {
-        "todos": [],
-        "notes": "",
         "completed": true,
-        "id": "cnt-1793729029344",
-        "title": "Bronquiectasias",
-        "examDate": "2026-09-17"
-      },
-      {
         "todos": [],
         "examDate": "2026-09-17",
-        "id": "cnt-1793729029345",
+        "title": "Bronquiectasias",
         "notes": "",
-        "completed": true,
-        "title": "Hemoptise – Patologias e abordagem cirúrgica"
+        "id": "cnt-1793729029344"
       },
       {
-        "completed": false,
+        "completed": true,
+        "title": "Hemoptise – Patologias e abordagem cirúrgica",
+        "examDate": "2026-09-17",
+        "notes": "",
+        "id": "cnt-1793729029345",
+        "todos": []
+      },
+      {
         "id": "cnt-1790205250333",
-        "examDate": "2026-11-26",
+        "notes": "",
         "title": "Abscessos pulmonares",
         "todos": [],
-        "notes": ""
+        "examDate": "2026-11-26",
+        "completed": false
       },
       {
-        "completed": false,
-        "title": "Hiperidrose",
         "todos": [],
-        "examDate": "2026-11-26",
         "id": "cnt-1793729029346",
-        "notes": ""
+        "examDate": "2026-11-26",
+        "notes": "",
+        "title": "Hiperidrose",
+        "completed": false
+      },
+      {
+        "id": "cnt-1793729029347",
+        "todos": [],
+        "completed": false,
+        "examDate": "2026-11-26",
+        "notes": "",
+        "title": "Cirurgia das metástases pulmonares"
       },
       {
         "notes": "",
-        "todos": [],
         "completed": false,
-        "title": "Cirurgia das metástases pulmonares",
-        "id": "cnt-1793729029347",
-        "examDate": "2026-11-26"
-      },
-      {
-        "completed": false,
-        "examDate": "2026-11-26",
         "title": "Empiema pleural",
         "id": "cnt-1793729029348",
         "todos": [],
-        "notes": ""
+        "examDate": "2026-11-26"
       },
       {
+        "notes": "",
         "title": "Derrame pleural",
-        "completed": false,
-        "todos": [],
         "id": "cnt-1793729029349",
-        "examDate": "2026-11-26",
-        "notes": ""
-      },
-      {
-        "examDate": "2026-11-26",
-        "title": "Traumatismo torácico",
-        "todos": [],
         "completed": false,
-        "id": "cnt-1793303567256",
-        "notes": ""
+        "todos": [],
+        "examDate": "2026-11-26"
       },
       {
+        "notes": "",
+        "title": "Traumatismo torácico",
+        "examDate": "2026-11-26",
+        "id": "cnt-1793303567256",
+        "todos": [],
+        "completed": false
+      },
+      {
+        "todos": [],
         "id": "cnt-1793729029350",
         "completed": false,
-        "todos": [],
         "notes": "",
-        "examDate": "2026-11-26",
-        "title": "Patologias do mediastino"
+        "title": "Patologias do mediastino",
+        "examDate": "2026-11-26"
       },
       {
-        "completed": false,
         "examDate": "2026-11-26",
         "id": "cnt-1793729029351",
         "title": "Neoplasias pulmonares",
-        "todos": [],
-        "notes": ""
+        "notes": "",
+        "completed": false,
+        "todos": []
       },
       {
-        "completed": false,
-        "title": "Tema de escolha do grupo",
         "todos": [],
         "notes": "",
         "id": "cnt-1793729029352",
-        "examDate": "2026-11-26"
+        "examDate": "2026-11-26",
+        "title": "Tema de escolha do grupo",
+        "completed": false
       }
     ],
-    "name": "Torácica",
-    "color": "#f97316",
-    "emoji": "🩻"
+    "color": "#f97316"
   },
   {
+    "code": "",
+    "id": "sub-1788900113114",
+    "name": "Cardio",
     "emoji": "🫀",
-    "color": "#ef4444",
     "contents": [
       {
-        "title": "Insuficiência Cardíaca",
         "id": "cnt-1788900121915",
+        "examDate": "2026-09-28",
         "notes": "",
+        "title": "Insuficiência Cardíaca",
+        "completed": true,
         "todos": [
           {
+            "id": "td-1790346918541",
             "completed": true,
-            "title": "Flashcards",
-            "id": "td-1790346918541"
+            "title": "Flashcards"
           },
           {
             "id": "td-1790346924198",
+            "title": "Sanar",
+            "completed": true
+          }
+        ]
+      },
+      {
+        "completed": true,
+        "examDate": "2026-09-28",
+        "id": "cnt-1788900126094",
+        "todos": [
+          {
             "completed": true,
+            "id": "td-1789830995366",
             "title": "Sanar"
+          },
+          {
+            "completed": true,
+            "title": "Flashcards",
+            "id": "td-1789830999915"
           }
         ],
+        "notes": "",
+        "title": "ECG"
+      },
+      {
         "examDate": "2026-09-28",
+        "title": "Doença aterosclerótica coronariana",
+        "notes": "",
+        "id": "cnt-1788900140092",
+        "todos": [
+          {
+            "completed": true,
+            "id": "td-1790285938543",
+            "title": "Sanar"
+          },
+          {
+            "title": "Flashcards",
+            "id": "td-1790285940798",
+            "completed": true
+          }
+        ],
         "completed": true
       },
       {
-        "title": "ECG",
-        "examDate": "2026-09-28",
-        "todos": [
-          {
-            "title": "Sanar",
-            "id": "td-1789830995366",
-            "completed": true
-          },
-          {
-            "id": "td-1789830999915",
-            "title": "Flashcards",
-            "completed": true
-          }
-        ],
-        "completed": true,
-        "notes": "",
-        "id": "cnt-1788900126094"
-      },
-      {
-        "id": "cnt-1788900140092",
-        "completed": true,
-        "title": "Doença aterosclerótica coronariana",
-        "examDate": "2026-09-28",
-        "todos": [
-          {
-            "id": "td-1790285938543",
-            "title": "Sanar",
-            "completed": true
-          },
-          {
-            "completed": true,
-            "title": "Flashcards",
-            "id": "td-1790285940798"
-          }
-        ],
-        "notes": ""
-      },
-      {
-        "title": "Valvulopatias: Estenose mitral",
-        "completed": true,
         "id": "cnt-1789406900432",
+        "title": "Valvulopatias: Estenose mitral",
         "notes": "",
         "examDate": "2026-09-28",
+        "completed": true,
         "todos": [
           {
             "title": "Sanar",
-            "completed": true,
-            "id": "td-1790285946702"
+            "id": "td-1790285946702",
+            "completed": true
           },
           {
-            "title": "Cards",
+            "id": "td-1790285950142",
             "completed": true,
-            "id": "td-1790285950142"
+            "title": "Cards"
           }
         ]
       },
       {
         "id": "cnt-1790014963071",
+        "notes": "",
         "title": "Valvulopatias: Estenose aórtica",
         "completed": true,
-        "notes": "",
         "todos": [
           {
             "id": "td-1790285957327",
@@ -286,695 +288,693 @@
         "examDate": "2026-09-28"
       },
       {
-        "id": "cnt-1792102289564",
-        "examDate": "2026-11-30",
         "title": "Hipertensão Arterial Sistêmica",
-        "todos": [],
         "notes": "",
+        "id": "cnt-1792102289564",
+        "todos": [],
+        "examDate": "2026-11-30",
         "completed": false
       },
       {
-        "title": "Arritmias Cardíacas",
-        "id": "cnt-1793035508369",
-        "notes": "",
         "examDate": "2026-11-30",
+        "todos": [],
+        "id": "cnt-1793035508369",
         "completed": false,
-        "todos": []
+        "notes": "",
+        "title": "Arritmias Cardíacas"
       },
       {
+        "examDate": "2026-11-30",
         "completed": false,
+        "notes": "",
         "title": "Endocardite Infecciosa e Dislipidemias",
         "todos": [],
-        "id": "cnt-1793729029353",
-        "examDate": "2026-11-30",
-        "notes": ""
+        "id": "cnt-1793729029353"
       },
       {
-        "title": "Miocardiopatias e Pericardiopatias",
+        "id": "cnt-1793729029354",
+        "todos": [],
         "examDate": "2026-11-30",
         "completed": false,
-        "todos": [],
-        "notes": "",
-        "id": "cnt-1793729029354"
+        "title": "Miocardiopatias e Pericardiopatias",
+        "notes": ""
       }
     ],
-    "code": "",
-    "name": "Cardio",
-    "id": "sub-1788900113114"
+    "color": "#ef4444"
   },
   {
-    "name": "Dermato",
     "color": "#f2e9b0",
+    "id": "sub-1788900174031",
+    "emoji": "🖐",
+    "code": "",
     "contents": [
       {
         "notes": "",
-        "completed": true,
+        "title": "Fisiologia da pele, lesões elementares e exame dermatológico",
         "todos": [],
         "examDate": "2026-10-07",
-        "title": "Fisiologia da pele, lesões elementares e exame dermatológico",
+        "completed": true,
         "id": "cnt-1788900271386"
       },
       {
-        "title": "Tumores de pele, epiteliomas",
         "todos": [],
-        "notes": "",
         "examDate": "2026-10-07",
+        "notes": "",
+        "title": "Tumores de pele, epiteliomas",
         "completed": true,
         "id": "cnt-1788900185209"
       },
       {
+        "todos": [],
+        "title": "Eczemas e dermatites",
         "id": "cnt-1788900223018",
         "notes": "",
-        "todos": [],
         "examDate": "2026-10-07",
-        "completed": true,
-        "title": "Eczemas e dermatites"
+        "completed": true
       },
       {
-        "todos": [],
+        "title": "Dermatoviroses",
         "examDate": "2026-10-07",
         "notes": "",
         "completed": true,
         "id": "cnt-1790775763440",
-        "title": "Dermatoviroses"
+        "todos": []
       },
       {
-        "examDate": "2026-10-07",
         "completed": true,
+        "examDate": "2026-10-07",
         "id": "cnt-1793729029355",
         "notes": "",
-        "todos": [],
-        "title": "Urgências em dermatologia"
-      },
-      {
-        "notes": "",
-        "completed": true,
-        "todos": [],
-        "title": "Piodermites",
-        "examDate": "2026-10-07",
-        "id": "cnt-1793729029356"
-      },
-      {
-        "title": "Zoodermatoses",
-        "id": "cnt-1790205484753",
-        "completed": true,
-        "examDate": "2026-10-07",
-        "notes": "",
+        "title": "Urgências em dermatologia",
         "todos": []
+      },
+      {
+        "completed": true,
+        "title": "Piodermites",
+        "notes": "",
+        "id": "cnt-1793729029356",
+        "todos": [],
+        "examDate": "2026-10-07"
+      },
+      {
+        "completed": true,
+        "examDate": "2026-10-07",
+        "notes": "",
+        "title": "Zoodermatoses",
+        "todos": [],
+        "id": "cnt-1790205484753"
       },
       {
         "id": "cnt-1793729029357",
         "notes": "",
-        "completed": true,
-        "todos": [],
         "examDate": "2026-10-07",
-        "title": "Dermatoses crônicas"
+        "title": "Dermatoses crônicas",
+        "completed": true,
+        "todos": []
+      },
+      {
+        "id": "cnt-1789063165737",
+        "completed": true,
+        "notes": "",
+        "title": "Micoses",
+        "examDate": "2026-11-18",
+        "todos": []
       },
       {
         "todos": [],
+        "id": "cnt-1788900207945",
         "notes": "",
-        "id": "cnt-1789063165737",
-        "examDate": "2026-11-18",
-        "completed": true,
-        "title": "Micoses"
-      },
-      {
         "title": "Distúrbios pigmentares",
         "completed": true,
-        "id": "cnt-1788900207945",
-        "todos": [],
-        "notes": "",
         "examDate": "2026-11-18"
       },
       {
         "completed": false,
-        "notes": "",
         "examDate": "2026-11-18",
-        "id": "cnt-1793729029358",
         "todos": [],
-        "title": "Cicatrização e cirurgia dermatológica"
+        "title": "Cicatrização e cirurgia dermatológica",
+        "notes": "",
+        "id": "cnt-1793729029358"
       },
       {
+        "completed": false,
         "id": "cnt-1793729029359",
-        "todos": [],
-        "completed": false,
-        "notes": "",
         "examDate": "2026-11-18",
-        "title": "Tumores cutâneos benignos"
-      },
-      {
         "todos": [],
-        "notes": "",
-        "id": "cnt-1793729029360",
-        "completed": false,
-        "examDate": "2026-11-18",
-        "title": "Colagenoses"
-      },
-      {
-        "completed": true,
-        "examDate": "2026-11-18",
-        "title": "Dermatologia nas doenças sistêmicas",
-        "todos": [],
-        "id": "cnt-1793729029361",
+        "title": "Tumores cutâneos benignos",
         "notes": ""
       },
       {
-        "notes": "",
         "todos": [],
-        "title": "Sessão iconográfica e apresentação de casos clínicos",
         "examDate": "2026-11-18",
-        "id": "cnt-1793729029362",
-        "completed": false
-      }
-    ],
-    "code": "",
-    "emoji": "🖐",
-    "id": "sub-1788900174031"
-  },
-  {
-    "emoji": "💉",
-    "color": "#8b5cf6",
-    "contents": [
+        "completed": false,
+        "title": "Colagenoses",
+        "id": "cnt-1793729029360",
+        "notes": ""
+      },
       {
         "todos": [],
-        "notes": "",
-        "id": "cnt-1793729029363",
+        "examDate": "2026-11-18",
         "completed": true,
+        "notes": "",
+        "title": "Dermatologia nas doenças sistêmicas",
+        "id": "cnt-1793729029361"
+      },
+      {
+        "completed": false,
+        "todos": [],
+        "examDate": "2026-11-18",
+        "title": "Sessão iconográfica e apresentação de casos clínicos",
+        "notes": "",
+        "id": "cnt-1793729029362"
+      }
+    ],
+    "name": "Dermato"
+  },
+  {
+    "id": "sub-1788900390385",
+    "contents": [
+      {
+        "completed": true,
+        "todos": [],
+        "id": "cnt-1793729029363",
         "title": "Hipófise I (fisiologia, pan-hipopituitarismo, diabetes insipidus)",
-        "examDate": "2026-08-25"
+        "examDate": "2026-08-25",
+        "notes": ""
       },
       {
         "title": "Hipófise II (acromegalia, hiperprolactinemia, Cushing)",
+        "notes": "",
         "completed": true,
         "id": "cnt-1793729029364",
         "examDate": "2026-08-25",
+        "todos": []
+      },
+      {
         "todos": [],
+        "completed": true,
+        "id": "cnt-1789063208238",
+        "title": "Dislipidemias",
+        "examDate": "2026-09-29",
         "notes": ""
       },
       {
+        "completed": true,
         "todos": [],
-        "id": "cnt-1789063208238",
         "examDate": "2026-09-29",
-        "notes": "",
-        "completed": true,
-        "title": "Dislipidemias"
-      },
-      {
-        "notes": "",
-        "examDate": "2026-09-29",
-        "completed": true,
         "id": "cnt-1789063217683",
-        "todos": [],
+        "notes": "",
         "title": "Diabetes Mellitus (fisiopatologia, diagnóstico, tratamento e complicações)"
       },
       {
-        "id": "cnt-1791321063784",
-        "notes": "",
-        "todos": [],
-        "title": "Metabolismo Ósseo",
         "completed": false,
-        "examDate": "2026-10-27"
-      },
-      {
-        "id": "cnt-1791321068755",
-        "title": "Obesidade",
-        "notes": "",
-        "todos": [],
-        "completed": false,
-        "examDate": "2026-10-27"
-      },
-      {
-        "id": "cnt-1792529853298",
-        "notes": "",
         "todos": [],
         "examDate": "2026-10-27",
-        "title": "Endocrinologia do Esporte",
-        "completed": false
+        "notes": "",
+        "id": "cnt-1791321063784",
+        "title": "Metabolismo Ósseo"
       },
       {
-        "todos": [],
         "completed": false,
+        "todos": [],
+        "title": "Obesidade",
         "notes": "",
+        "examDate": "2026-10-27",
+        "id": "cnt-1791321068755"
+      },
+      {
+        "completed": false,
+        "examDate": "2026-10-27",
+        "todos": [],
+        "id": "cnt-1792529853298",
+        "title": "Endocrinologia do Esporte",
+        "notes": ""
+      },
+      {
+        "completed": false,
         "examDate": "2026-11-24",
         "id": "cnt-1793729029365",
-        "title": "Adrenal"
+        "title": "Adrenal",
+        "notes": "",
+        "todos": []
       },
       {
-        "notes": "",
         "todos": [],
-        "examDate": "2026-11-24",
-        "title": "Tireóide (patologias funcionais e doenças nodulares)",
         "id": "cnt-1793729029366",
-        "completed": false
+        "examDate": "2026-11-24",
+        "notes": "",
+        "completed": false,
+        "title": "Tireóide (patologias funcionais e doenças nodulares)"
       }
     ],
+    "color": "#8b5cf6",
     "name": "Endócrino",
-    "id": "sub-1788900390385",
-    "code": ""
+    "code": "",
+    "emoji": "💉"
   },
   {
-    "color": "#000000",
+    "name": "Radio",
     "code": "",
     "contents": [
       {
-        "completed": true,
         "title": "Introdução à Radiologia e Padrões Radiológicos Básicos",
-        "id": "cnt-1788900581759",
-        "examDate": "2026-11-12",
         "notes": "",
-        "todos": []
-      },
-      {
         "completed": true,
         "todos": [],
-        "id": "cnt-1793727240165",
         "examDate": "2026-11-12",
-        "notes": "",
-        "title": "Interpretação da Radiografia de Tórax e Doenças Pulmonares"
+        "id": "cnt-1788900581759"
       },
       {
-        "title": "Dispositivos Médicos na Radiografia e Trauma Torácico",
-        "id": "cnt-1793729029367",
+        "todos": [],
+        "completed": true,
+        "title": "Interpretação da Radiografia de Tórax e Doenças Pulmonares",
         "examDate": "2026-11-12",
         "notes": "",
+        "id": "cnt-1793727240165"
+      },
+      {
+        "examDate": "2026-11-12",
+        "todos": [],
         "completed": true,
-        "todos": []
+        "id": "cnt-1793729029367",
+        "notes": "",
+        "title": "Dispositivos Médicos na Radiografia e Trauma Torácico"
       }
     ],
-    "name": "Radio",
     "emoji": "🩻",
+    "color": "#000000",
     "id": "sub-1788900568003"
   },
   {
     "name": "Pato",
     "contents": [
       {
-        "id": "cnt-1789063292459",
         "title": "Tireóide",
-        "notes": "",
-        "examDate": "2026-11-30",
         "completed": false,
+        "notes": "",
+        "id": "cnt-1789063292459",
+        "examDate": "2026-11-30",
         "todos": []
       }
     ],
     "code": "",
     "id": "sub-1788900610247",
-    "color": "#ec4899",
-    "emoji": "🔬"
+    "emoji": "🔬",
+    "color": "#ec4899"
   },
   {
-    "code": "",
     "name": "Pneumo",
+    "code": "",
+    "emoji": "🫁",
+    "id": "sub-1788900627737",
+    "color": "#84cc16",
     "contents": [
       {
+        "completed": false,
+        "examDate": "2026-12-04",
+        "todos": [],
         "id": "cnt-1793729029369",
         "title": "Introdução à Pneumologia",
-        "examDate": "2026-12-04",
-        "completed": false,
-        "notes": "",
-        "todos": []
+        "notes": ""
       },
       {
         "examDate": "2026-12-04",
-        "notes": "",
-        "todos": [],
-        "id": "cnt-1789063312233",
         "title": "Asma",
-        "completed": false
+        "notes": "",
+        "completed": false,
+        "id": "cnt-1789063312233",
+        "todos": []
       },
       {
-        "todos": [],
         "notes": "",
-        "id": "cnt-1793729029370",
-        "examDate": "2026-12-04",
         "title": "Seminário: Inaladores",
-        "completed": false
+        "completed": false,
+        "todos": [],
+        "id": "cnt-1793729029370",
+        "examDate": "2026-12-04"
       },
       {
-        "title": "DPOC",
-        "completed": false,
+        "todos": [],
         "examDate": "2026-12-04",
-        "notes": "",
+        "completed": false,
         "id": "cnt-1789063316313",
-        "todos": []
+        "notes": "",
+        "title": "DPOC"
       },
       {
+        "notes": "",
         "title": "Seminário: Espirometria",
-        "examDate": "2026-12-04",
         "id": "cnt-1793729029371",
-        "notes": "",
         "completed": false,
-        "todos": []
-      },
-      {
-        "title": "Pneumonia Comunitária",
-        "completed": false,
-        "id": "cnt-1792752827356",
-        "todos": [],
-        "examDate": "2026-12-04",
-        "notes": ""
-      },
-      {
-        "id": "cnt-1789125640286",
-        "todos": [],
-        "notes": "",
-        "examDate": "2026-12-04",
-        "completed": false,
-        "title": "Tuberculose Pulmonar"
-      },
-      {
-        "examDate": "2026-12-04",
-        "completed": false,
-        "id": "cnt-1793729029372",
-        "title": "Seminário: Vacinas em Pneumologia",
-        "todos": [],
-        "notes": ""
-      },
-      {
-        "completed": false,
-        "title": "Insuficiência Respiratória",
-        "id": "cnt-1793729029373",
-        "notes": "",
         "todos": [],
         "examDate": "2026-12-04"
       },
       {
-        "title": "Seminário: Gasometria Arterial",
-        "examDate": "2026-12-04",
+        "title": "Pneumonia Comunitária",
         "notes": "",
+        "id": "cnt-1792752827356",
         "completed": false,
+        "todos": [],
+        "examDate": "2026-12-04"
+      },
+      {
+        "id": "cnt-1789125640286",
+        "todos": [],
+        "examDate": "2026-12-04",
+        "title": "Tuberculose Pulmonar",
+        "completed": false,
+        "notes": ""
+      },
+      {
+        "notes": "",
+        "title": "Seminário: Vacinas em Pneumologia",
+        "todos": [],
+        "examDate": "2026-12-04",
+        "id": "cnt-1793729029372",
+        "completed": false
+      },
+      {
+        "todos": [],
+        "examDate": "2026-12-04",
+        "completed": false,
+        "title": "Insuficiência Respiratória",
+        "id": "cnt-1793729029373",
+        "notes": ""
+      },
+      {
+        "notes": "",
+        "examDate": "2026-12-04",
+        "completed": false,
+        "title": "Seminário: Gasometria Arterial",
         "id": "cnt-1793729029374",
         "todos": []
       },
       {
+        "todos": [],
+        "completed": false,
+        "title": "Seminário: Oxigenoterapia",
         "notes": "",
         "id": "cnt-1793729029375",
-        "todos": [],
+        "examDate": "2026-12-04"
+      },
+      {
         "examDate": "2026-12-04",
-        "title": "Seminário: Oxigenoterapia",
+        "title": "Doenças Pleurais",
+        "id": "cnt-1793729029376",
+        "completed": false,
+        "notes": "",
+        "todos": []
+      },
+      {
+        "title": "Tromboembolismo Pulmonar",
+        "notes": "",
+        "examDate": "2026-12-04",
+        "todos": [],
+        "id": "cnt-1793729029377",
         "completed": false
       },
       {
+        "notes": "",
+        "title": "Doenças Intersticiais",
         "completed": false,
         "examDate": "2026-12-04",
-        "notes": "",
         "todos": [],
-        "title": "Doenças Pleurais",
-        "id": "cnt-1793729029376"
+        "id": "cnt-1793729029378"
       },
       {
-        "todos": [],
+        "title": "Nódulo e Câncer de Pulmão",
+        "notes": "",
         "examDate": "2026-12-04",
-        "id": "cnt-1793729029377",
-        "notes": "",
-        "completed": false,
-        "title": "Tromboembolismo Pulmonar"
-      },
-      {
         "todos": [],
-        "notes": "",
         "completed": false,
-        "id": "cnt-1793729029378",
-        "examDate": "2026-12-04",
-        "title": "Doenças Intersticiais"
+        "id": "cnt-1793729029379"
       },
       {
-        "notes": "",
-        "todos": [],
         "examDate": "2026-12-04",
-        "id": "cnt-1793729029379",
-        "completed": false,
-        "title": "Nódulo e Câncer de Pulmão"
-      },
-      {
+        "notes": "",
+        "id": "cnt-1793729029380",
         "title": "Seminário: Tabagismo e Cigarros Eletrônicos",
         "completed": false,
-        "id": "cnt-1793729029380",
-        "examDate": "2026-12-04",
-        "todos": [],
-        "notes": ""
+        "todos": []
       }
-    ],
-    "color": "#84cc16",
-    "id": "sub-1788900627737",
-    "emoji": "🫁"
+    ]
   },
   {
+    "id": "sub-1788900653037",
     "code": "",
+    "name": "Técnica",
+    "emoji": "🩹",
     "contents": [
       {
-        "todos": [],
-        "notes": "",
         "completed": true,
+        "todos": [],
         "examDate": "2026-09-25",
+        "notes": "",
         "id": "cnt-1789125747512",
         "title": "Atos operatórios fundamentais"
       },
       {
-        "title": "Infecção de sitio",
         "completed": true,
-        "notes": "",
-        "examDate": "2026-09-25",
         "id": "cnt-1789125766706",
-        "todos": []
-      },
-      {
-        "notes": "",
-        "completed": true,
         "todos": [],
         "examDate": "2026-09-25",
+        "notes": "",
+        "title": "Infecção de sitio"
+      },
+      {
+        "completed": true,
+        "examDate": "2026-09-25",
+        "notes": "",
         "title": "Choque",
+        "todos": [],
         "id": "cnt-1789125775883"
       },
       {
-        "id": "cnt-1789125788338",
+        "todos": [],
+        "completed": true,
         "title": "Cirurgia ambulatorial",
-        "examDate": "2026-09-25",
-        "todos": [],
-        "completed": true,
-        "notes": ""
+        "notes": "",
+        "id": "cnt-1789125788338",
+        "examDate": "2026-09-25"
       },
       {
-        "todos": [],
-        "notes": "",
-        "completed": true,
+        "examDate": "2026-09-25",
         "id": "cnt-1789125807003",
-        "examDate": "2026-09-25",
-        "title": "Laparotomia e videolaparotomia"
-      },
-      {
-        "id": "cnt-1789125907299",
-        "title": "Bases técnicas de cx torácica",
-        "completed": true,
-        "examDate": "2026-09-25",
         "todos": [],
+        "completed": true,
+        "title": "Laparotomia e videolaparotomia",
         "notes": ""
       },
       {
-        "id": "cnt-1789153942390",
-        "notes": "",
         "todos": [],
-        "title": "Cicatrização",
         "examDate": "2026-09-25",
-        "completed": true
+        "completed": true,
+        "id": "cnt-1789125907299",
+        "notes": "",
+        "title": "Bases técnicas de cx torácica"
+      },
+      {
+        "completed": true,
+        "id": "cnt-1789153942390",
+        "todos": [],
+        "examDate": "2026-09-25",
+        "title": "Cicatrização",
+        "notes": ""
       },
       {
         "notes": "",
-        "completed": true,
-        "todos": [],
-        "examDate": "2026-09-25",
         "title": "Equipe cirurgica, paramentação, cirurgia asséptica, biossegurança",
+        "examDate": "2026-09-25",
+        "todos": [],
+        "completed": true,
         "id": "cnt-1789992143872"
       },
       {
+        "todos": [],
+        "examDate": "2026-09-25",
         "id": "cnt-1789992316705",
-        "todos": [],
-        "notes": "",
-        "examDate": "2026-09-25",
+        "title": "Cirurgia plástica, enxerto e retalho",
         "completed": true,
-        "title": "Cirurgia plástica, enxerto e retalho"
+        "notes": ""
       },
       {
+        "id": "cnt-1790182794048",
         "completed": true,
+        "notes": "",
+        "examDate": "2026-09-25",
         "title": "Flashcards",
-        "todos": [],
-        "examDate": "2026-09-25",
-        "notes": "",
-        "id": "cnt-1790182794048"
+        "todos": []
       },
       {
-        "todos": [],
-        "notes": "",
         "examDate": "2026-11-27",
+        "todos": [],
         "completed": false,
+        "id": "cnt-1793729029381",
         "title": "Cirurgia de hérnia e cirurgia esplênica",
-        "id": "cnt-1793729029381"
+        "notes": ""
       },
       {
         "id": "cnt-1793729029382",
         "title": "Pré-operatório em cirurgia e cirurgia de esôfago, estômago e duodeno",
-        "todos": [],
         "examDate": "2026-11-27",
-        "completed": false,
-        "notes": ""
-      },
-      {
         "notes": "",
         "completed": false,
-        "todos": [],
-        "title": "Bases técnicas da videocirurgia, vias biliares e fígado",
-        "examDate": "2026-11-27",
-        "id": "cnt-1793729029383"
-      },
-      {
-        "completed": false,
-        "title": "Cirurgia urológica e cirurgia pediátrica – bases",
-        "todos": [],
-        "id": "cnt-1793729029384",
-        "examDate": "2026-11-27",
-        "notes": ""
-      },
-      {
-        "completed": false,
-        "title": "Cirurgias intestinais (cólon, reto, apêndice) e queimadura",
-        "examDate": "2026-11-27",
-        "todos": [],
-        "id": "cnt-1793729029385",
-        "notes": ""
-      },
-      {
-        "examDate": "2026-11-27",
-        "title": "Cirurgia oncológica",
-        "id": "cnt-1793729029386",
-        "completed": false,
-        "todos": [],
-        "notes": ""
-      },
-      {
-        "todos": [],
-        "notes": "",
-        "id": "cnt-1793729029387",
-        "examDate": "2026-11-27",
-        "completed": false,
-        "title": "Prova Prática de Habilidades"
-      }
-    ],
-    "color": "#cb1515",
-    "name": "Técnica",
-    "emoji": "🩹",
-    "id": "sub-1788900653037"
-  },
-  {
-    "id": "sub-1789060550661",
-    "emoji": "🩸",
-    "color": "#ef4444",
-    "contents": [
-      {
-        "title": "Introdução Vascular e Trauma Vascular",
-        "examDate": "2026-10-08",
-        "notes": "",
-        "id": "cnt-1793729029388",
-        "completed": true,
         "todos": []
       },
       {
-        "completed": true,
+        "examDate": "2026-11-27",
+        "title": "Bases técnicas da videocirurgia, vias biliares e fígado",
         "notes": "",
+        "id": "cnt-1793729029383",
+        "completed": false,
+        "todos": []
+      },
+      {
+        "id": "cnt-1793729029384",
         "todos": [],
+        "examDate": "2026-11-27",
+        "completed": false,
+        "notes": "",
+        "title": "Cirurgia urológica e cirurgia pediátrica – bases"
+      },
+      {
+        "todos": [],
+        "id": "cnt-1793729029385",
+        "examDate": "2026-11-27",
+        "notes": "",
+        "title": "Cirurgias intestinais (cólon, reto, apêndice) e queimadura",
+        "completed": false
+      },
+      {
+        "todos": [],
+        "id": "cnt-1793729029386",
+        "examDate": "2026-11-27",
+        "notes": "",
+        "title": "Cirurgia oncológica",
+        "completed": false
+      },
+      {
+        "examDate": "2026-11-27",
+        "completed": false,
+        "todos": [],
+        "id": "cnt-1793729029387",
+        "notes": "",
+        "title": "Prova Prática de Habilidades"
+      }
+    ],
+    "color": "#cb1515"
+  },
+  {
+    "code": "",
+    "emoji": "🩸",
+    "name": "Vascular",
+    "color": "#ef4444",
+    "contents": [
+      {
+        "todos": [],
+        "completed": true,
+        "id": "cnt-1793729029388",
         "examDate": "2026-10-08",
+        "notes": "",
+        "title": "Introdução Vascular e Trauma Vascular"
+      },
+      {
+        "completed": true,
         "title": "Fisiologia e Farmacologia Vascular",
-        "id": "cnt-1793729029389"
+        "examDate": "2026-10-08",
+        "notes": "",
+        "id": "cnt-1793729029389",
+        "todos": []
       },
       {
         "title": "Úlceras",
-        "id": "cnt-1789063383015",
+        "notes": "",
+        "todos": [],
+        "examDate": "2026-10-08",
+        "completed": true,
+        "id": "cnt-1789063383015"
+      },
+      {
+        "todos": [],
+        "completed": true,
+        "title": "Pé Diabético",
         "examDate": "2026-10-08",
         "notes": "",
+        "id": "cnt-1789063368503"
+      },
+      {
+        "id": "cnt-1789063378753",
+        "examDate": "2026-10-08",
+        "notes": "",
+        "title": "Varizes",
         "todos": [],
         "completed": true
       },
       {
-        "id": "cnt-1789063368503",
-        "title": "Pé Diabético",
         "todos": [],
         "completed": true,
-        "notes": "",
-        "examDate": "2026-10-08"
-      },
-      {
-        "notes": "",
-        "completed": true,
-        "id": "cnt-1789063378753",
-        "todos": [],
-        "title": "Varizes",
-        "examDate": "2026-10-08"
-      },
-      {
-        "notes": "Sanar",
-        "todos": [],
-        "completed": true,
-        "title": "Trombose Venosa 1 e 2",
         "id": "cnt-1789060567346",
-        "examDate": "2026-10-08"
+        "title": "Trombose Venosa 1 e 2",
+        "examDate": "2026-10-08",
+        "notes": "Sanar"
       },
       {
         "id": "cnt-1789663962814",
-        "todos": [],
-        "notes": "",
         "examDate": "2026-10-08",
-        "completed": true,
-        "title": "Aneurismas e Dissecção"
-      },
-      {
-        "completed": false,
-        "title": "DAOP (Doença Arterial Obstrutiva Periférica)",
-        "todos": [],
-        "examDate": "2026-11-26",
-        "id": "cnt-1791324885472",
-        "notes": ""
-      },
-      {
-        "id": "cnt-1793729029390",
         "notes": "",
+        "title": "Aneurismas e Dissecção",
+        "todos": [],
+        "completed": true
+      },
+      {
         "todos": [],
         "completed": false,
+        "examDate": "2026-11-26",
+        "notes": "",
+        "id": "cnt-1791324885472",
+        "title": "DAOP (Doença Arterial Obstrutiva Periférica)"
+      },
+      {
         "title": "Desfiladeiro Torácico e Angiopatias Funcionais",
+        "notes": "",
+        "id": "cnt-1793729029390",
+        "completed": false,
+        "todos": [],
         "examDate": "2026-11-26"
       },
       {
-        "completed": false,
         "todos": [],
+        "completed": false,
         "examDate": "2026-11-26",
+        "title": "Oclusão Arterial Aguda",
         "notes": "",
-        "id": "cnt-1793293058728",
-        "title": "Oclusão Arterial Aguda"
+        "id": "cnt-1793293058728"
       },
       {
         "completed": false,
         "examDate": "2026-11-26",
         "title": "Vasculites",
-        "id": "cnt-1793729029391",
         "notes": "",
+        "id": "cnt-1793729029391",
         "todos": []
       },
       {
-        "examDate": "2026-11-26",
-        "notes": "",
-        "todos": [],
+        "title": "Doença Carotídea",
         "completed": false,
-        "id": "cnt-1793729029392",
-        "title": "Doença Carotídea"
+        "notes": "",
+        "examDate": "2026-11-26",
+        "todos": [],
+        "id": "cnt-1793729029392"
       },
       {
-        "title": "Doenças do Sistema Linfático",
-        "todos": [],
-        "examDate": "2026-11-26",
         "id": "cnt-1793729029393",
-        "completed": false,
-        "notes": ""
+        "notes": "",
+        "title": "Doenças do Sistema Linfático",
+        "examDate": "2026-11-26",
+        "todos": [],
+        "completed": false
       }
     ],
-    "name": "Vascular",
-    "code": ""
+    "id": "sub-1789060550661"
   }
 ]
