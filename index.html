@@ -88,14 +88,14 @@
               <span id="current-lang-label">PT</span>
             </button>
 
-            <button class="btn btn-outline btn-sm" onclick="exportData()" data-i18n-title="backup_title" title="Export data backup (JSON)">
+            <button class="btn btn-outline btn-sm header-action-btn" onclick="exportData()" data-i18n-title="backup_title" title="Export data backup (JSON)">
               <span class="material-symbols-rounded icon-sm">download</span>
-              <span data-i18n="backup_button">Backup</span>
+              <span class="btn-text-mobile-hide" data-i18n="backup_button">Backup</span>
             </button>
             
-            <label class="btn btn-outline btn-sm" style="margin:0; cursor:pointer;" data-i18n-title="restore_title" title="Restore backup (JSON)">
+            <label class="btn btn-outline btn-sm header-action-btn" style="margin:0; cursor:pointer;" data-i18n-title="restore_title" title="Restore backup (JSON)">
               <span class="material-symbols-rounded icon-sm">upload</span>
-              <span data-i18n="restore_button">Restore</span>
+              <span class="btn-text-mobile-hide" data-i18n="restore_button">Restore</span>
               <input type="file" accept=".json" style="display:none;" onchange="importData(event)" />
             </label>
           </div>
@@ -372,26 +372,6 @@
     </div>
   </div>
 
-  <!-- Cloud Data Hydration Prompt Modal -->
-  <div class="modal-backdrop modal-overlay" id="cloud-prompt-modal" onclick="if(event.target === this) closeCloudPromptModal()">
-    <div class="modal-card modal-content" style="max-width: 440px;">
-      <div class="modal-header">
-        <h3 class="modal-title" data-i18n="cloud_data_found_title">Dados na Nuvem Encontrados</h3>
-        <button class="btn-icon" onclick="closeCloudPromptModal()" title="Fechar">
-          <span class="material-symbols-rounded">close</span>
-        </button>
-      </div>
-      <div style="padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
-        <p id="cloud-prompt-desc" style="color: var(--md-sys-color-on-surface-variant); font-size: 0.9rem; line-height: 1.45;" data-i18n="cloud_data_found_desc">
-          Encontramos um cronograma salvo na sua conta do Flashcards. Deseja carregar os dados da nuvem?
-        </p>
-        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
-          <button class="btn btn-outline btn-sm" onclick="rejectCloudData()" data-i18n="cloud_keep_local_btn">Manter Local</button>
-          <button class="btn btn-primary btn-sm" onclick="acceptCloudData()" data-i18n="cloud_load_cloud_btn">Carregar da Nuvem</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Share Link Generated Modal (Material You Expressive) -->
   <div class="modal-backdrop modal-overlay" id="share-link-modal" onclick="if(event.target === this) closeShareLinkModal()">

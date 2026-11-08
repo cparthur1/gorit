@@ -913,7 +913,7 @@ function renderStudiesView() {
                 <span class="material-symbols-rounded">folder</span>
                 ${t('contents_header', { count: (subject.contents || []).length })}
               </div>
-              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <div class="contents-header-actions">
                 ${!isPinned ? `
                   <button class="btn btn-outline btn-sm" onclick="handleShareSubject('${subject.id}', event)" title="${t('share_subject_btn')}">
                     <span class="material-symbols-rounded icon-sm">share</span>
@@ -1043,7 +1043,6 @@ function renderContentsList(subject) {
             <div class="content-item-info">
               <div class="content-title-row">
                 <div class="content-title">
-                  <span class="material-symbols-rounded content-status-icon ${isCompleted ? 'done' : ''}">${isCompleted ? 'check_circle' : 'radio_button_unchecked'}</span>
                   <span class="content-title-text ${isCompleted ? 'completed' : ''}">${escapeHtml(content.title)}</span>
                   ${isCompleted ? `<span class="content-completed-badge"><span class="material-symbols-rounded">check</span> ${t('completed_badge')}</span>` : ''}
                 </div>
@@ -1131,21 +1130,23 @@ function renderContentsList(subject) {
                 placeholder="${t('add_task_placeholder')}" 
                 autocomplete="off"
               />
-              <label class="todo-date-picker-label" title="${t('due_date_label')}">
-                <span class="material-symbols-rounded">alarm</span>
-                <input type="date" id="input-todo-date-${content.id}" class="todo-date-input" title="${t('due_date_label')}" />
-              </label>
-              <button 
-                type="button" 
-                class="todo-action-icon-btn todo-inline-daily-btn" 
-                id="input-todo-daily-${content.id}"
-                onclick="toggleInlineDailyReminderBtn('${content.id}')"
-                title="${t('daily_reminder_tooltip')}">
-                <span class="material-symbols-rounded">event_repeat</span>
-              </button>
-              <button type="submit" class="btn btn-primary btn-sm">
-                ${PLUS_ICON} ${t('add_task_btn')}
-              </button>
+              <div class="add-todo-controls">
+                <label class="todo-date-picker-label" title="${t('due_date_label')}">
+                  <span class="material-symbols-rounded">alarm</span>
+                  <input type="date" id="input-todo-date-${content.id}" class="todo-date-input" title="${t('due_date_label')}" />
+                </label>
+                <button 
+                  type="button" 
+                  class="todo-action-icon-btn todo-inline-daily-btn" 
+                  id="input-todo-daily-${content.id}"
+                  onclick="toggleInlineDailyReminderBtn('${content.id}')"
+                  title="${t('daily_reminder_tooltip')}">
+                  <span class="material-symbols-rounded">event_repeat</span>
+                </button>
+                <button type="submit" class="btn btn-primary btn-sm add-todo-submit-btn">
+                  ${PLUS_ICON} <span>${t('add_task_btn')}</span>
+                </button>
+              </div>
             </form>
           </div>
         </div>
@@ -1221,6 +1222,7 @@ function renderTodos(subjectId, content) {
           class="todo-checkbox" 
           ${todo.completed ? 'checked' : ''} 
           onchange="toggleTodoStatus('${subjectId}', '${content.id}', '${todo.id}', this.checked)"
+          aria-label="${escapeHtml(todo.title)}"
         />
         <span 
           class="todo-text" 
@@ -1229,13 +1231,8 @@ function renderTodos(subjectId, content) {
           title="${t('click_to_edit_task')}"
           onblur="handleTodoTitleBlur('${subjectId}', '${content.id}', '${todo.id}', this)"
           onkeydown="handleTodoTitleKeydown(event, this)">${escapeHtml(todo.title)}</span>
-        
-        <div class="todo-meta-badges">
-          ${dailyBadgeHtml}
-          ${dueBadgeHtml}
-        </div>
 
-        <div style="display:flex; align-items:center; gap:0.2rem;">
+        <div class="todo-actions-wrap">
           <!-- Daily reminder toggle -->
           <button 
             type="button" 
@@ -1264,6 +1261,13 @@ function renderTodos(subjectId, content) {
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
+
+        ${(dailyBadgeHtml || dueBadgeHtml) ? `
+          <div class="todo-meta-badges">
+            ${dailyBadgeHtml}
+            ${dueBadgeHtml}
+          </div>
+        ` : ''}
       </div>
     `;
   }).join('');
@@ -2219,7 +2223,6 @@ window.handleTodoDueDateChange = handleTodoDueDateChange;
 window.toggleInlineDailyReminderBtn = toggleInlineDailyReminderBtn;
 
 // --- User Account & Cloud Sync (Flashcards PRO Integration) ---
-let pendingCloudSubjects = null;
 
 function renderAccountHeaderBtn() {
   const btn = document.getElementById('account-btn');
@@ -2368,36 +2371,6 @@ function closeAccountModal() {
   if (modal) modal.classList.remove('is-open', 'active');
 }
 
-function closeCloudPromptModal() {
-  const modal = document.getElementById('cloud-prompt-modal');
-  if (modal) modal.classList.remove('is-open', 'active');
-  pendingCloudSubjects = null;
-}
-
-function acceptCloudData() {
-  if (pendingCloudSubjects) {
-    state.subjects = pendingCloudSubjects;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
-    state.lastCloudSync = new Date().toISOString();
-    renderApp();
-    syncToServer();
-    updateAutosaveBadge('cloud', state.lastCloudSync);
-    showToast(t('cloud_sync_success_toast'), 'success');
-  }
-  closeCloudPromptModal();
-}
-
-function rejectCloudData() {
-  if (state.currentUser && state.isPro) {
-    saveGoritToCloud(state.subjects).then(res => {
-      if (res && res.success) {
-        state.lastCloudSync = res.timestamp;
-        updateAutosaveBadge('cloud', res.timestamp);
-      }
-    });
-  }
-  closeCloudPromptModal();
-}
 
 async function handleGoogleSignIn() {
   try {
@@ -2460,37 +2433,20 @@ async function onUserAuthenticated(user) {
   renderAccountHeaderBtn();
 
   if (state.isPro) {
-    // 2. Load cloud data
+    // 2. Always automatically sync from cloud in background
     const cloudGorit = await loadGoritFromCloud();
     if (cloudGorit && Array.isArray(cloudGorit.subjects) && cloudGorit.subjects.length > 0) {
-      const isOnlyDefaultGeneral = !state.subjects || state.subjects.length === 0 || 
-        (state.subjects.length === 1 && (state.subjects[0].id === GENERAL_TASKS_ID || state.subjects[0].isGeneralTasks) && 
-         (state.subjects[0].contents || []).every(c => (c.todos || []).length === 0 && !c.notes));
-
-      if (isOnlyDefaultGeneral) {
-        // Local is clean/default: direct hydrate silently
-        state.subjects = cloudGorit.subjects;
-        ensureGeneralTasksSubject();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
-        state.lastCloudSync = cloudGorit.updatedAt || new Date().toISOString();
-        renderApp();
-        syncToServer();
-      } else {
-        // Both local and cloud have custom data: offer sync choice
-        pendingCloudSubjects = cloudGorit.subjects;
-        const promptDesc = document.getElementById('cloud-prompt-desc');
-        if (promptDesc) {
-          promptDesc.textContent = t('cloud_data_found_desc').replace('{count}', cloudGorit.subjects.length);
-        }
-        const promptModal = document.getElementById('cloud-prompt-modal');
-        if (promptModal) promptModal.classList.add('is-open', 'active');
-      }
+      state.subjects = cloudGorit.subjects;
+      ensureGeneralTasksSubject();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.subjects));
+      state.lastCloudSync = cloudGorit.updatedAt || new Date().toISOString();
+      renderApp();
+      syncToServer();
     } else if (state.subjects && state.subjects.length > 0) {
       // Cloud is empty: push local data to cloud
       saveGoritToCloud(state.subjects).then(res => {
         if (res && res.success) {
           state.lastCloudSync = res.timestamp;
-          updateAutosaveBadge('cloud', res.timestamp);
         }
       });
     }
@@ -2687,9 +2643,6 @@ function initAuthSync() {
 
 window.openAccountModal = openAccountModal;
 window.closeAccountModal = closeAccountModal;
-window.closeCloudPromptModal = closeCloudPromptModal;
-window.acceptCloudData = acceptCloudData;
-window.rejectCloudData = rejectCloudData;
 window.handleGoogleSignIn = handleGoogleSignIn;
 window.handleGoogleSignOut = handleGoogleSignOut;
 window.handleManualCloudSync = handleManualCloudSync;
@@ -2706,7 +2659,6 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeContentModal();
     closeAccountModal();
-    closeCloudPromptModal();
     closeShareLinkModal();
     closeShareProModal();
     closeImportShareModal();

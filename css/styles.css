@@ -773,17 +773,98 @@ body {
   padding: 2px;
 }
 
-.content-checkbox {
-  width: 20px;
-  height: 20px;
+/* Circular Checkbox (Material Design 3 / Material You) */
+.content-checkbox,
+.todo-checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background: var(--bg-surface);
+  display: inline-grid;
+  place-content: center;
   cursor: pointer;
-  accent-color: var(--success);
-  border-radius: 6px;
-  transition: transform var(--m3-duration-short) ease;
+  position: relative;
+  flex-shrink: 0;
+  outline: none;
+  transition: all var(--m3-duration-short) var(--m3-easing-standard);
 }
 
-.content-checkbox:hover {
-  transform: scale(1.15);
+.content-checkbox {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+}
+
+.todo-checkbox {
+  width: 19px;
+  height: 19px;
+  min-width: 19px;
+}
+
+.content-checkbox:hover,
+.todo-checkbox:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.content-checkbox:focus-visible,
+.todo-checkbox:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.content-checkbox:checked {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.todo-checkbox:checked {
+  background-color: var(--subject-color, var(--primary));
+  border-color: var(--subject-color, var(--primary));
+}
+
+.content-checkbox:checked::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2.2px 2.2px 0;
+  transform: rotate(43deg) translate(-0.5px, -1px);
+  animation: checkPop 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.todo-checkbox:checked::after {
+  content: "";
+  display: block;
+  width: 4.5px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(43deg) translate(-0.5px, -0.8px);
+  animation: checkPop 160ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+.content-checkbox:indeterminate {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.content-checkbox:indeterminate::after {
+  content: "";
+  display: block;
+  width: 8px;
+  height: 2.2px;
+  background-color: #ffffff;
+  border-radius: 1px;
+  transform: none;
+}
+
+@keyframes checkPop {
+  0% { transform: rotate(43deg) translate(-0.5px, -1px) scale(0.6); opacity: 0; }
+  100% { transform: rotate(43deg) translate(-0.5px, -1px) scale(1); opacity: 1; }
 }
 
 .content-item-info {
@@ -937,32 +1018,34 @@ body {
 .todo-row {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.5rem 0.65rem;
   padding: 0.55rem 0.85rem;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   transition: all var(--m3-duration-short) ease;
+  flex-wrap: wrap;
 }
 
 .todo-row:hover {
   border-color: color-mix(in srgb, var(--subject-color, var(--primary)) 60%, var(--border-color));
 }
 
-.todo-checkbox {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: var(--subject-color, var(--primary));
-  border-radius: 4px;
-}
-
 .todo-text {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 120px;
   font-size: 0.88rem;
   color: var(--text-primary);
   word-break: break-word;
   transition: color 0.15s, background-color 0.15s;
+}
+
+.todo-actions-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .todo-text[contenteditable="true"] {
@@ -1267,6 +1350,14 @@ body {
 .add-todo-inline {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.add-todo-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
 }
 
 .add-todo-input {
@@ -1964,5 +2055,409 @@ body {
   align-items: center;
   padding-top: 0.5rem;
   border-top: 1px solid var(--border-color);
+}
+
+/* ==========================================================================
+   Responsive Mobile Layout & Ergonomics (Material Design 3 Mobile Spec)
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  /* Prevent horizontal blowout */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  .app-container {
+    padding: 0.85rem 0.65rem 3.5rem;
+    overflow-x: hidden;
+  }
+
+  /* Compact Header */
+  .app-header {
+    padding: 1rem 0.85rem;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-xl);
+  }
+
+  .brand-bar {
+    margin-bottom: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .brand-identity {
+    gap: 0.65rem;
+  }
+
+  .brand-logo-wrap {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .brand-name {
+    font-size: 1.25rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.65rem;
+  }
+
+  .header-actions {
+    gap: 0.3rem;
+  }
+
+  .header-action-btn {
+    padding: 0.35rem 0.55rem;
+  }
+
+  .btn-text-mobile-hide {
+    display: none !important;
+  }
+
+  .lang-toggle-btn {
+    min-width: unset;
+    padding: 0.35rem 0.55rem;
+    font-size: 0.76rem;
+  }
+
+  /* 2-Column Responsive Stats Grid */
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .stats-grid .stat-box:nth-child(3) {
+    grid-column: span 2;
+  }
+
+  .stat-box {
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-md);
+  }
+
+  .stat-label {
+    font-size: 0.68rem;
+  }
+
+  .stat-val {
+    font-size: 1.2rem;
+  }
+
+  .stat-hint {
+    font-size: 0.7rem;
+  }
+
+  /* Segmented Pill Tabs */
+  .nav-tab-container {
+    padding: 0.25rem;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .tab-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.82rem;
+    gap: 0.35rem;
+  }
+
+  /* Search & Controls */
+  .control-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .search-wrapper {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .search-input {
+    padding: 0.6rem 0.9rem 0.6rem 2.5rem;
+    font-size: 0.88rem;
+  }
+
+  .control-actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.45rem;
+  }
+
+  .control-actions .btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.5rem 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  /* Chrono Banner */
+  .chrono-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.8rem;
+  }
+
+  .chrono-banner .btn {
+    align-self: flex-start;
+  }
+
+  /* Subject Card */
+  .subject-card {
+    border-radius: var(--radius-lg);
+    margin-bottom: 0.75rem;
+  }
+
+  .subject-header {
+    padding: 0.85rem 0.75rem;
+    gap: 0.65rem;
+    border-left-width: 5px;
+  }
+
+  .subject-icon-box {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .subject-emoji-icon {
+    font-size: 1.35rem;
+  }
+
+  .subject-name {
+    font-size: 1rem;
+    word-break: break-word;
+  }
+
+  .subject-meta-chips {
+    gap: 0.3rem;
+  }
+
+  .exam-badge,
+  .pinned-badge,
+  .first-in-line-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  /* Contents Drawer */
+  .subject-contents-drawer {
+    padding: 0 0.65rem;
+  }
+
+  .subject-card.is-expanded > .subject-contents-drawer-wrapper > .subject-contents-drawer {
+    padding: 0.85rem 0.65rem;
+  }
+
+  .contents-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .contents-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    width: 100%;
+  }
+
+  .contents-header-actions .btn {
+    padding: 0.35rem 0.55rem;
+    font-size: 0.78rem;
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  /* Content Item */
+  .content-item-card {
+    border-radius: var(--radius-md);
+    margin-bottom: 0.65rem;
+  }
+
+  .content-item-header {
+    padding: 0.65rem 0.65rem;
+    gap: 0.45rem;
+  }
+
+  .content-header-main {
+    gap: 0.55rem;
+    min-width: 0;
+  }
+
+  .content-title {
+    font-size: 0.88rem;
+  }
+
+  .content-header-actions {
+    gap: 0.15rem;
+  }
+
+  .content-header-actions .btn-icon {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+  }
+
+  /* Content Drawer Details & To-dos */
+  .content-tasks-drawer {
+    padding: 0 0.65rem;
+  }
+
+  .content-item-card.is-expanded > .content-tasks-drawer-wrapper > .content-tasks-drawer {
+    padding: 0.75rem 0.65rem;
+  }
+
+  .content-drawer-header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .content-drawer-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* To-Do Row Layout */
+  .todo-row {
+    padding: 0.5rem 0.65rem;
+    gap: 0.4rem 0.5rem;
+  }
+
+  .todo-text {
+    flex: 1 1 calc(100% - 130px);
+    min-width: 90px;
+    font-size: 0.85rem;
+  }
+
+  .todo-actions-wrap {
+    gap: 0.15rem;
+  }
+
+  .todo-actions-wrap .todo-action-icon-btn,
+  .todo-actions-wrap .todo-delete-btn,
+  .todo-actions-wrap .todo-date-picker-label {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .todo-meta-badges {
+    width: 100%;
+    padding-left: 28px;
+    gap: 0.3rem;
+  }
+
+  /* Inline Add To-Do */
+  .add-todo-inline {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
+  .add-todo-input {
+    width: 100%;
+    font-size: 0.84rem;
+    padding: 0.45rem 0.75rem;
+  }
+
+  .add-todo-controls {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .add-todo-controls .btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  /* Modals */
+  .modal-overlay,
+  .modal-backdrop {
+    padding: 0.65rem;
+  }
+
+  .modal-content,
+  .modal-card {
+    border-radius: var(--radius-xl);
+    max-height: 94vh;
+  }
+
+  .modal-header {
+    padding: 1rem 1.15rem;
+  }
+
+  .modal-title {
+    font-size: 1.1rem;
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .color-swatches {
+    gap: 0.35rem;
+  }
+
+  .color-swatch {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 440px) {
+  .app-container {
+    padding: 0.65rem 0.45rem 3rem;
+  }
+
+  .app-header {
+    padding: 0.85rem 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid .stat-box:nth-child(3) {
+    grid-column: auto;
+  }
+
+  .brand-name {
+    font-size: 1.15rem;
+  }
+
+  .brand-logo-wrap {
+    width: 32px;
+    height: 32px;
+  }
+
+  .subject-header {
+    padding: 0.75rem 0.65rem;
+  }
+
+  .subject-icon-box {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .subject-emoji-icon {
+    font-size: 1.25rem;
+  }
 }
 
