@@ -2071,6 +2071,43 @@ body {
   border-radius: var(--radius-full);
 }
 
+.account-plan-badge-camblu-raro {
+  background: linear-gradient(135deg, #3b82f7 0%, #1d55b8 100%);
+  color: #ffffff;
+}
+
+.account-plan-badge-camblu-epico {
+  background: linear-gradient(135deg, #7c3aed 0%, #5523b5 100%);
+  color: #ffffff;
+}
+
+.account-plan-badge-camblu-lendario {
+  background: linear-gradient(135deg, #b8890e 0%, #eab308 55%, #785506 100%);
+  color: #ffffff;
+}
+
+.account-plan-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.account-camblu-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-md);
+  background: rgba(59, 130, 247, 0.08);
+  border: 1px solid rgba(59, 130, 247, 0.25);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
 .account-plan-badge-free {
   display: inline-flex;
   align-items: center;

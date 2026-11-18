@@ -65,32 +65,43 @@ export function isLifetime(user) {
 let cachedUserProStatus = null;
 
 /**
- * Checks whether user has active PRO status (lifetime, stripe subscription or backend token)
+ * Returns cached Pro status details (provider, Clube CAMBLU tier, validUntil, etc.)
+ */
+export function getUserProStatus(user = auth.currentUser) {
+  if (!user) return null;
+  if (isLifetime(user)) {
+    return { uid: user.uid, isPro: true, isLifetimePro: true, proSource: 'whitelist', plan: 'pro_lifetime' };
+  }
+  if (cachedUserProStatus && cachedUserProStatus.uid === user.uid) {
+    return cachedUserProStatus;
+  }
+  try {
+    const local = localStorage.getItem(`gorit_pro_cache_${user.uid}`);
+    if (local) {
+      return JSON.parse(local);
+    }
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Checks whether user has active PRO status (lifetime, stripe subscription or Clube CAMBLU tierCode >= 2)
  */
 export function isUserPro(user = auth.currentUser) {
   if (!user) return false;
   if (isLifetime(user)) return true;
   if (user.pro === true) return true;
 
-  if (cachedUserProStatus && cachedUserProStatus.uid === user.uid) {
-    return Boolean(cachedUserProStatus.isPro || cachedUserProStatus.subscription?.status === 'active');
+  const status = getUserProStatus(user);
+  if (status && (!status.uid || status.uid === user.uid)) {
+    return Boolean(status.isPro || status.subscription?.status === 'active');
   }
-
-  try {
-    const local = localStorage.getItem(`gorit_pro_cache_${user.uid}`);
-    if (local) {
-      const parsed = JSON.parse(local);
-      if (parsed && (parsed.isPro || parsed.subscription?.status === 'active')) {
-        return true;
-      }
-    }
-  } catch (e) {}
 
   return false;
 }
 
 /**
- * Validates active subscription status with Flashcards backend
+ * Validates active subscription status with Flashcards backend (Stripe or Clube CAMBLU)
  */
 export async function fetchUserProStatus(user = auth.currentUser) {
   if (!user) {
@@ -99,7 +110,7 @@ export async function fetchUserProStatus(user = auth.currentUser) {
   }
 
   if (isLifetime(user)) {
-    cachedUserProStatus = { uid: user.uid, isPro: true, plan: 'pro_lifetime' };
+    cachedUserProStatus = { uid: user.uid, isPro: true, isLifetimePro: true, proSource: 'whitelist', plan: 'pro_lifetime' };
     try { localStorage.setItem(`gorit_pro_cache_${user.uid}`, JSON.stringify(cachedUserProStatus)); } catch (e) {}
     return cachedUserProStatus;
   }
@@ -118,8 +129,17 @@ export async function fetchUserProStatus(user = auth.currentUser) {
       cachedUserProStatus = {
         uid: user.uid,
         isPro: Boolean(data.isPro || data.subscription?.status === 'active'),
+        isLifetimePro: Boolean(data.isLifetimePro),
+        proSource: data.proSource || data.subscription?.provider || null,
+        provider: data.subscription?.provider || data.proSource || null,
         plan: data.subscription?.plan || 'pro_monthly',
-        status: data.subscription?.status || 'active'
+        status: data.subscription?.status || (data.isPro ? 'active' : 'inactive'),
+        tier: data.cambluClube?.tier || data.subscription?.tier || null,
+        tierCode: Number(data.cambluClube?.tierCode ?? data.subscription?.tierCode ?? 0),
+        tierName: data.cambluClube?.tierName || data.subscription?.tierName || null,
+        validUntil: data.cambluClube?.validUntil || data.subscription?.validUntil || null,
+        cambluClube: data.cambluClube || null,
+        subscription: data.subscription || null
       };
       try { localStorage.setItem(`gorit_pro_cache_${user.uid}`, JSON.stringify(cachedUserProStatus)); } catch (e) {}
       return cachedUserProStatus;

@@ -12,6 +12,7 @@ import {
   signOutUser,
   onAuthChange,
   isUserPro,
+  getUserProStatus,
   fetchUserProStatus,
   saveGoritToCloud,
   loadGoritFromCloud,
@@ -2226,6 +2227,12 @@ window.toggleInlineDailyReminderBtn = toggleInlineDailyReminderBtn;
 
 // --- User Account & Cloud Sync (Flashcards PRO Integration) ---
 
+function getGoritCambluTierLabel(tier) {
+  const key = `camblu_tier_${String(tier || '').trim().toLowerCase()}`;
+  const translated = t(key);
+  return translated !== key ? translated : 'Raro';
+}
+
 function renderAccountHeaderBtn() {
   const btn = document.getElementById('account-btn');
   const icon = document.getElementById('account-btn-icon');
@@ -2239,7 +2246,7 @@ function renderAccountHeaderBtn() {
 
     if (state.currentUser.photoURL) {
       if (icon) {
-        icon.outerHTML = `<img src="${state.currentUser.photoURL}" class="account-avatar-img" id="account-btn-icon" alt="${firstName}" />`;
+        icon.outerHTML = `<img src="${state.currentUser.photoURL}" class="account-avatar-img" id="account-btn-icon" alt="${escapeHtml(firstName)}" />`;
       }
     } else {
       if (icon) {
@@ -2252,7 +2259,17 @@ function renderAccountHeaderBtn() {
     }
 
     if (proPill) {
+      const proStatus = getUserProStatus(state.currentUser);
+      const isCamblu = Boolean(state.isPro && (proStatus?.provider === 'camblu_clube' || proStatus?.proSource === 'camblu_clube'));
       proPill.style.display = state.isPro ? 'inline-flex' : 'none';
+      if (isCamblu) {
+        const tierLabel = getGoritCambluTierLabel(proStatus?.tier || proStatus?.cambluClube?.tier);
+        proPill.textContent = `CAMBLU`;
+        proPill.title = t('account_camblu_badge', { tier: tierLabel });
+      } else {
+        proPill.textContent = 'PRO';
+        proPill.title = t('account_pro_badge');
+      }
     }
   } else {
     if (icon) {
@@ -2296,17 +2313,39 @@ function renderAccountModal() {
 
   const user = state.currentUser;
   const isPro = state.isPro;
+  const proStatus = getUserProStatus(user);
+  const isCambluPro = Boolean(isPro && (proStatus?.provider === 'camblu_clube' || proStatus?.proSource === 'camblu_clube'));
+  const cambluTierSlug = String(proStatus?.tier || proStatus?.cambluClube?.tier || 'raro').toLowerCase();
+  const cambluTierLabel = getGoritCambluTierLabel(cambluTierSlug);
+  const cambluValidUntil = proStatus?.validUntil || proStatus?.cambluClube?.validUntil || null;
+  const locale = getLanguage() === 'en-US' ? 'en-US' : 'pt-BR';
+  const validUntilFormatted = cambluValidUntil ? new Date(cambluValidUntil).toLocaleDateString(locale) : null;
+  const isCambluComum = Boolean(!isPro && proStatus?.cambluClube?.active && Number(proStatus?.cambluClube?.tierCode) === 1);
+  const safeDisplayName = escapeHtml(user.displayName || 'Estudante');
+  const safeEmail = escapeHtml(user.email || '');
   const photo = user.photoURL 
-    ? `<img src="${user.photoURL}" class="account-user-avatar" alt="${user.displayName || 'Avatar'}" />`
-    : `<div class="account-user-avatar-placeholder">${(user.displayName || user.email || 'U')[0].toUpperCase()}</div>`;
+    ? `<img src="${escapeHtml(user.photoURL)}" class="account-user-avatar" alt="${safeDisplayName}" />`
+    : `<div class="account-user-avatar-placeholder">${escapeHtml((user.displayName || user.email || 'U')[0].toUpperCase())}</div>`;
+
+  let planBadgeHtml = '';
+  if (isCambluPro) {
+    const tierBadgeClass = cambluTierSlug === 'lendario'
+      ? 'account-plan-badge-camblu-lendario'
+      : (cambluTierSlug === 'epico' ? 'account-plan-badge-camblu-epico' : 'account-plan-badge-camblu-raro');
+    planBadgeHtml = `<span class="account-plan-badge-pro ${tierBadgeClass}"><span class="material-symbols-rounded" style="font-size: 16px;">verified</span>${escapeHtml(t('account_camblu_badge', { tier: cambluTierLabel }))}</span>`;
+  } else if (isPro) {
+    planBadgeHtml = `<span class="account-plan-badge-pro"><span class="material-symbols-rounded" style="font-size: 16px;">verified</span>${t('account_pro_badge')}</span>`;
+  } else {
+    planBadgeHtml = `<span class="account-plan-badge-free"><span class="material-symbols-rounded" style="font-size: 16px;">lock</span>${t('account_free_badge')}</span>`;
+  }
 
   body.innerHTML = `
     <!-- User Profile Card -->
     <div class="account-user-card">
       ${photo}
       <div class="account-user-details">
-        <span class="account-user-name">${user.displayName || 'Estudante'}</span>
-        <span class="account-user-email">${user.email || ''}</span>
+        <span class="account-user-name">${safeDisplayName}</span>
+        <span class="account-user-email">${safeEmail}</span>
       </div>
     </div>
 
@@ -2314,15 +2353,32 @@ function renderAccountModal() {
     <div class="account-plan-box ${isPro ? 'is-pro' : ''}">
       <div class="account-plan-header">
         <span class="account-plan-title">${t('account_status_label')}</span>
-        ${isPro 
-          ? `<span class="account-plan-badge-pro"><span class="material-symbols-rounded" style="font-size: 16px;">verified</span>${t('account_pro_badge')}</span>`
-          : `<span class="account-plan-badge-free"><span class="material-symbols-rounded" style="font-size: 16px;">lock</span>${t('account_free_badge')}</span>`}
+        ${planBadgeHtml}
       </div>
       <p class="account-plan-desc">
-        ${isPro ? t('account_pro_desc') : t('account_free_desc')}
+        ${isCambluPro
+          ? escapeHtml(t('account_camblu_pro_desc', { tier: cambluTierLabel }))
+          : (isPro ? t('account_pro_desc') : t('account_free_desc'))}
       </p>
+      ${isCambluPro && validUntilFormatted ? `
+        <div class="account-plan-meta">
+          <span class="material-symbols-rounded" style="font-size: 16px; color: var(--primary);">event_available</span>
+          <span>${escapeHtml(t('account_camblu_valid_until', { date: validUntilFormatted }))}</span>
+        </div>
+      ` : ''}
+      ${isCambluPro ? `
+        <a href="https://camblu.web.app/clube" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="margin-top: 0.35rem; justify-content: center; gap: 0.4rem; text-decoration: none;">
+          <span class="material-symbols-rounded icon-sm">card_membership</span>
+          <span>${t('account_camblu_portal_btn')}</span>
+          <span class="material-symbols-rounded" style="font-size: 15px;">open_in_new</span>
+        </a>
+      ` : ''}
       ${!isPro ? `
-        <a href="https://cparthur1.github.io/Flashcards/" target="_blank" class="btn btn-primary btn-sm" style="margin-top: 0.4rem; justify-content: center; gap: 0.4rem; text-decoration: none;">
+        <div class="account-camblu-hint">
+          <span class="material-symbols-rounded" style="font-size: 16px; color: var(--primary); flex-shrink: 0;">card_membership</span>
+          <span>${escapeHtml(isCambluComum ? t('account_camblu_comum_hint') : t('account_camblu_free_hint'))}</span>
+        </div>
+        <a href="https://flashcards.camblu.org/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="margin-top: 0.4rem; justify-content: center; gap: 0.4rem; text-decoration: none;">
           <span class="material-symbols-rounded icon-sm">star</span>
           <span>${t('account_upgrade_btn')}</span>
         </a>
@@ -2365,6 +2421,15 @@ function openAccountModal() {
   if (modal) {
     renderAccountModal();
     modal.classList.add('is-open', 'active');
+    if (state.currentUser) {
+      fetchUserProStatus(state.currentUser).then(() => {
+        state.isPro = isUserPro(state.currentUser);
+        renderAccountHeaderBtn();
+        if (modal.classList.contains('active')) {
+          renderAccountModal();
+        }
+      }).catch(() => {});
+    }
   }
 }
 
@@ -2433,6 +2498,10 @@ async function onUserAuthenticated(user) {
   await fetchUserProStatus(user);
   state.isPro = isUserPro(user);
   renderAccountHeaderBtn();
+  const accModal = document.getElementById('account-modal');
+  if (accModal && accModal.classList.contains('active')) {
+    renderAccountModal();
+  }
 
   if (state.isPro) {
     // 2. Always automatically sync from cloud in background
