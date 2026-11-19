@@ -285,23 +285,25 @@ export async function shareSubjectToCloud(subject) {
       todos: []
     }));
 
+    const safeName = String(subject.name || '').trim() || 'Matéria';
+
     const subjectData = {
-      name: subject.name,
-      code: subject.code || '',
-      color: subject.color || '#3b82f7',
-      icon: subject.icon || subject.emoji || '📚',
-      emoji: subject.icon || subject.emoji || '📚',
+      name: safeName,
+      code: String(subject.code || ''),
+      color: String(subject.color || '#3b82f7'),
+      icon: String(subject.icon || subject.emoji || '📚'),
+      emoji: String(subject.icon || subject.emoji || '📚'),
       contents: cleanContents
     };
 
     const payload = {
       type: 'gorit_subject',
       shareSlug,
-      title: subject.name,
+      title: safeName,
       subjectData,
       sharedBy: {
         uid: user.uid,
-        name: user.displayName || user.email || 'Usuário PRO'
+        name: (user.displayName || '').trim() || 'Usuário PRO'
       },
       createdAt: Date.now()
     };
