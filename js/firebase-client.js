@@ -198,19 +198,19 @@ export function onAuthChange(callback) {
 /**
  * Saves Gorit subjects & progress to Cloud Firestore for PRO users
  */
-export async function saveGoritToCloud(subjects) {
+export async function saveGoritToCloud(subjects, updatedAt = null) {
   const user = auth.currentUser;
   if (!user) return { success: false, reason: 'not_authenticated' };
   if (!isUserPro(user)) return { success: false, reason: 'not_pro' };
 
   try {
-    const now = new Date().toISOString();
+    const now = updatedAt || new Date().toISOString();
     // Uses merge: true to avoid overwriting Flashcards deckSlots or other user data
     await setDoc(doc(db, 'users', user.uid), {
       gorit: {
         subjects: subjects || [],
         updatedAt: now,
-        clientVersion: '1.1.0'
+        clientVersion: '1.5.0'
       }
     }, { merge: true });
 
@@ -281,7 +281,7 @@ export async function shareSubjectToCloud(subject) {
       title: c.title || '',
       examDate: c.examDate || null,
       notes: c.notes || '',
-      isCompleted: false,
+      completed: false,
       todos: []
     }));
 

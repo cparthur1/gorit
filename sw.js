@@ -4,7 +4,7 @@
  * Gorit - Offline PWA Service Worker
  */
 
-const CACHE_NAME = 'gorit-v1.4.4';
+const CACHE_NAME = 'gorit-v1.5.2';
 
 const BASE_PATH = self.registration && self.registration.scope 
   ? new URL(self.registration.scope).pathname.replace(/\/$/, '') 
@@ -15,6 +15,7 @@ const RAW_ASSETS = [
   '/index.html',
   '/css/styles.css',
   '/js/app.js',
+  '/js/dialogs.js',
   '/js/i18n.js',
   '/js/firebase-client.js',
   '/manifest.webmanifest',
