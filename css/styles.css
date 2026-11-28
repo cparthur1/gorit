@@ -3691,11 +3691,6 @@ dialog.m3-app-dialog[open]:where(:not([data-closing]))::backdrop {
   user-select: none;
 }
 
-.kykVM.kykVM--sm {
-  padding: 2px 8px;
-  min-height: 18px;
-}
-
 .oU5yj {
   position: absolute;
   left: 50%;
@@ -3717,10 +3712,6 @@ dialog.m3-app-dialog[open]:where(:not([data-closing]))::backdrop {
   letter-spacing: 0.01em;
   color: #1f1f1f;
   white-space: nowrap;
-}
-
-.kykVM.kykVM--sm .YzbLde {
-  font-size: 10px;
 }
 
 .google-pro-avatar-wrap,

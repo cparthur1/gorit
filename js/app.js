@@ -2731,9 +2731,8 @@ function getGoritCambluTierLabel(tier) {
   return translated !== key ? translated : 'Raro';
 }
 
-function buildGoogleProChipHtml({ label = 'Pro', compact = false } = {}) {
-  const classes = compact ? 'kykVM kykVM--sm' : 'kykVM';
-  return `<div class="${classes}" aria-hidden="true"><img src="assets/img/pro_tier_wave.svg" class="oU5yj" alt="" role="presentation"><span class="YzbLde">${escapeHtml(label || 'Pro')}</span></div>`;
+function buildGoogleProChipHtml({ label = 'Pro' } = {}) {
+  return `<div class="kykVM" aria-hidden="true"><img src="assets/img/pro_tier_wave.svg" class="oU5yj" alt="" role="presentation"><span class="YzbLde">${escapeHtml(label || 'Pro')}</span></div>`;
 }
 
 function buildGoogleProfileAvatarHtml({ photoUrl = '', displayName = '', isPro = false } = {}) {
