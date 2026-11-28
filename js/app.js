@@ -2760,7 +2760,6 @@ function appendProRingOverlay(container) {
 function renderAccountHeaderBtn() {
   const avatarWrap = document.getElementById('account-btn-avatar-wrap');
   const label = document.getElementById('account-btn-label');
-  const proPill = document.getElementById('account-pro-pill');
   if (!label || !avatarWrap) return;
 
   // Rebuild avatar wrap safely using DOM APIs (zero outerHTML injection!)
@@ -2803,33 +2802,9 @@ function renderAccountHeaderBtn() {
     if (state.isPro) {
       appendProRingOverlay(avatarWrap);
     }
-
-    if (proPill) {
-      const proStatus = getUserProStatus(state.currentUser);
-      const isCamblu = Boolean(
-        state.isPro && (proStatus?.provider === 'camblu_clube' || proStatus?.proSource === 'camblu_clube')
-      );
-      proPill.style.display = state.isPro ? 'inline-flex' : 'none';
-      if (state.isPro) {
-        if (isCamblu) {
-          const tierLabel = getGoritCambluTierLabel(proStatus?.tier || proStatus?.cambluClube?.tier);
-          proPill.innerHTML = buildGoogleProChipHtml({ label: tierLabel, compact: true });
-          proPill.title = t('account_camblu_badge', { tier: tierLabel });
-        } else {
-          proPill.innerHTML = buildGoogleProChipHtml({ label: 'Pro', compact: true });
-          proPill.title = t('account_pro_badge');
-        }
-      } else {
-        proPill.textContent = '';
-      }
-    }
   } else {
     appendDefaultIcon();
     label.textContent = t('auth_sign_in_short');
-    if (proPill) {
-      proPill.style.display = 'none';
-      proPill.textContent = '';
-    }
   }
 }
 
