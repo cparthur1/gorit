@@ -38,7 +38,9 @@ const RAW_ASSETS = [
   '/assets/img/icon-maskable-512.png',
   '/assets/img/icon-maskable.svg',
   '/assets/img/og-image.svg',
-  '/assets/img/og-image.png'
+  '/assets/img/og-image.png',
+  '/assets/img/pro_avatar_ring.png',
+  '/assets/img/pro_tier_wave.svg'
 ];
 
 const ASSETS_TO_CACHE = RAW_ASSETS.map(p => p === '/' ? (BASE_PATH || '/') : `${BASE_PATH}${p}`);

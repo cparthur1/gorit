@@ -77,7 +77,7 @@
                 <span class="material-symbols-rounded account-pill-default-icon">account_circle</span>
               </span>
               <span class="account-pill-label" id="account-btn-label" data-i18n="auth_sign_in_short">Entrar</span>
-              <span class="pro-tag-badge" id="account-pro-pill" style="display:none;">PRO</span>
+              <span id="account-pro-pill" style="display:none;"></span>
               <span class="material-symbols-rounded account-pill-chevron">expand_more</span>
             </button>
 
@@ -375,7 +375,7 @@
 
   <!-- Account, Backup & Cloud Synchronization Modal -->
   <div class="modal-overlay" id="account-modal" role="dialog" aria-modal="true" aria-labelledby="account-modal-title-heading" onclick="if(event.target === this) closeAccountModal()">
-    <div class="modal-content account-modal-card">
+    <div class="modal-content account-modal-card google-profile-sheet">
       <div class="modal-header">
         <div class="account-header-info">
           <h3 class="modal-title" id="account-modal-title-heading" data-i18n="account_modal_title">Minha Conta &amp; Dados</h3>

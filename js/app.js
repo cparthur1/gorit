@@ -2731,6 +2731,32 @@ function getGoritCambluTierLabel(tier) {
   return translated !== key ? translated : 'Raro';
 }
 
+function buildGoogleProChipHtml({ label = 'Pro', compact = false } = {}) {
+  const classes = compact ? 'kykVM kykVM--sm' : 'kykVM';
+  return `<div class="${classes}" aria-hidden="true"><img src="assets/img/pro_tier_wave.svg" class="oU5yj" alt="" role="presentation"><span class="YzbLde">${escapeHtml(label || 'Pro')}</span></div>`;
+}
+
+function buildGoogleProfileAvatarHtml({ photoUrl = '', displayName = '', isPro = false } = {}) {
+  const safePhoto = sanitizeImageUrl(photoUrl);
+  const initial = escapeHtml((displayName || 'U')[0].toUpperCase());
+  const inner = safePhoto
+    ? `<img src="${escapeHtml(safePhoto)}" class="google-pro-avatar-img" style="${isPro ? '' : 'border:1px solid #dadce0;'}" alt="${escapeHtml(displayName)}" referrerpolicy="no-referrer" />`
+    : `<div class="account-user-avatar-placeholder" style="width:100%;height:100%;margin:0;">${initial}</div>`;
+  const ring = isPro
+    ? `<img src="assets/img/pro_avatar_ring.png" alt="" aria-hidden="true" class="google-pro-avatar-ring" />`
+    : '';
+  return `<div class="google-pro-avatar-wrap ${isPro ? 'is-pro' : ''}" style="width:64px;height:64px;">${inner}${ring}</div>`;
+}
+
+function appendProRingOverlay(container) {
+  const ring = document.createElement('img');
+  ring.src = 'assets/img/pro_avatar_ring.png';
+  ring.alt = '';
+  ring.setAttribute('aria-hidden', 'true');
+  ring.className = 'google-pro-avatar-ring';
+  container.appendChild(ring);
+}
+
 function renderAccountHeaderBtn() {
   const avatarWrap = document.getElementById('account-btn-avatar-wrap');
   const label = document.getElementById('account-btn-label');
@@ -2739,6 +2765,7 @@ function renderAccountHeaderBtn() {
 
   // Rebuild avatar wrap safely using DOM APIs (zero outerHTML injection!)
   avatarWrap.textContent = '';
+  avatarWrap.classList.remove('is-pro');
 
   const appendDefaultIcon = () => {
     avatarWrap.textContent = '';
@@ -2753,6 +2780,10 @@ function renderAccountHeaderBtn() {
       || t('account_default_label');
     label.textContent = firstName;
 
+    if (state.isPro) {
+      avatarWrap.classList.add('is-pro');
+    }
+
     const safePhoto = sanitizeImageUrl(state.currentUser.photoURL);
     if (safePhoto) {
       const img = document.createElement('img');
@@ -2762,7 +2793,7 @@ function renderAccountHeaderBtn() {
       img.referrerPolicy = 'no-referrer';
       img.onerror = () => {
         appendDefaultIcon();
-        if (state.isPro) appendProStarDot(avatarWrap);
+        if (state.isPro) appendProRingOverlay(avatarWrap);
       };
       avatarWrap.appendChild(img);
     } else {
@@ -2770,7 +2801,7 @@ function renderAccountHeaderBtn() {
     }
 
     if (state.isPro) {
-      appendProStarDot(avatarWrap);
+      appendProRingOverlay(avatarWrap);
     }
 
     if (proPill) {
@@ -2779,41 +2810,37 @@ function renderAccountHeaderBtn() {
         state.isPro && (proStatus?.provider === 'camblu_clube' || proStatus?.proSource === 'camblu_clube')
       );
       proPill.style.display = state.isPro ? 'inline-flex' : 'none';
-      if (isCamblu) {
-        const tierLabel = getGoritCambluTierLabel(proStatus?.tier || proStatus?.cambluClube?.tier);
-        proPill.textContent = 'CAMBLU';
-        proPill.title = t('account_camblu_badge', { tier: tierLabel });
+      if (state.isPro) {
+        if (isCamblu) {
+          const tierLabel = getGoritCambluTierLabel(proStatus?.tier || proStatus?.cambluClube?.tier);
+          proPill.innerHTML = buildGoogleProChipHtml({ label: tierLabel, compact: true });
+          proPill.title = t('account_camblu_badge', { tier: tierLabel });
+        } else {
+          proPill.innerHTML = buildGoogleProChipHtml({ label: 'Pro', compact: true });
+          proPill.title = t('account_pro_badge');
+        }
       } else {
-        proPill.textContent = 'PRO';
-        proPill.title = t('account_pro_badge');
+        proPill.textContent = '';
       }
     }
   } else {
     appendDefaultIcon();
     label.textContent = t('auth_sign_in_short');
-    if (proPill) proPill.style.display = 'none';
+    if (proPill) {
+      proPill.style.display = 'none';
+      proPill.textContent = '';
+    }
   }
-}
-
-function appendProStarDot(container) {
-  const dot = document.createElement('span');
-  dot.className = 'account-pill-pro-dot';
-  dot.setAttribute('aria-hidden', 'true');
-  const star = document.createElement('span');
-  star.className = 'material-symbols-rounded';
-  star.textContent = 'star';
-  dot.appendChild(star);
-  container.appendChild(dot);
 }
 
 function buildAccountBackupBoxHtml() {
   return `
-    <div class="account-backup-box">
+    <div class="google-profile-row" style="display:flex;flex-direction:column;gap:0.65rem;">
       <div class="account-plan-header">
-        <span class="account-plan-title">${t('account_data_backup_title')}</span>
-        <span class="material-symbols-rounded icon-sm" style="color:var(--primary);">folder_zip</span>
+        <span class="account-plan-title" style="color:#1f1f1f;font-size:0.85rem;">${t('account_data_backup_title')}</span>
+        <span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">folder_zip</span>
       </div>
-      <p class="account-plan-desc">${t('account_data_backup_desc')}</p>
+      <p class="account-plan-desc" style="color:#444746;">${t('account_data_backup_desc')}</p>
       <div class="m3-btn-group m3-btn-group-full">
         <button type="button" class="m3-btn-group-item m3-group-sky" onclick="exportData()" title="${escapeHtml(t('backup_title'))}">
           <span class="material-symbols-rounded icon-sm">download</span>
@@ -2834,21 +2861,25 @@ function renderAccountModal() {
 
   if (!state.currentUser) {
     body.innerHTML = `
-      <div class="account-login-hero">
-        <div class="account-login-hero-icon">
-          <span class="material-symbols-rounded">cloud_sync</span>
+      <div class="google-profile-card">
+        <div class="account-login-hero" style="padding:0.75rem 0.25rem;">
+          <div class="account-login-hero-icon" style="background:#f0f4f9;color:#3b82f7;border:1px solid #dce3ee;">
+            <span class="material-symbols-rounded">cloud_sync</span>
+          </div>
+          <div>
+            <h4 style="color:#1f1f1f;">${t('auth_sign_in')}</h4>
+            <p style="color:#444746;">${t('account_login_prompt_desc')}</p>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="handleGoogleSignIn()">
+            <span class="material-symbols-rounded icon-sm">login</span>
+            <span>${t('auth_sign_in')}</span>
+          </button>
         </div>
-        <div>
-          <h4>${t('auth_sign_in')}</h4>
-          <p>${t('account_login_prompt_desc')}</p>
-        </div>
-        <button type="button" class="btn btn-primary" onclick="handleGoogleSignIn()">
-          <span class="material-symbols-rounded icon-sm">login</span>
-          <span>${t('auth_sign_in')}</span>
-        </button>
       </div>
 
-      ${buildAccountBackupBoxHtml()}
+      <div class="google-profile-group">
+        ${buildAccountBackupBoxHtml()}
+      </div>
     `;
     return;
   }
@@ -2868,21 +2899,19 @@ function renderAccountModal() {
 
   const safeDisplayName = escapeHtml(user.displayName || t('account_default_student'));
   const safeEmail = escapeHtml(user.email || '');
-  const safePhoto = sanitizeImageUrl(user.photoURL);
-  const photoHtml = safePhoto
-    ? `<img src="${escapeHtml(safePhoto)}" class="account-user-avatar" alt="${safeDisplayName}" referrerpolicy="no-referrer" />`
-    : `<div class="account-user-avatar-placeholder">${escapeHtml((user.displayName || user.email || 'U')[0].toUpperCase())}</div>`;
+  const photoHtml = buildGoogleProfileAvatarHtml({
+    photoUrl: user.photoURL,
+    displayName: safeDisplayName,
+    isPro
+  });
 
   let planBadgeHtml = '';
   if (isCambluPro) {
-    const tierBadgeClass = cambluTierSlug === 'lendario'
-      ? 'account-plan-badge-camblu-lendario'
-      : (cambluTierSlug === 'epico' ? 'account-plan-badge-camblu-epico' : 'account-plan-badge-camblu-raro');
-    planBadgeHtml = `<span class="account-plan-badge-pro ${tierBadgeClass}"><span class="material-symbols-rounded icon-sm">verified</span>${escapeHtml(t('account_camblu_badge', { tier: cambluTierLabel }))}</span>`;
+    planBadgeHtml = buildGoogleProChipHtml({ label: t('account_camblu_badge', { tier: cambluTierLabel }) });
   } else if (isPro) {
-    planBadgeHtml = `<span class="account-plan-badge-pro"><span class="material-symbols-rounded icon-sm">verified</span>${t('account_pro_badge')}</span>`;
+    planBadgeHtml = buildGoogleProChipHtml({ label: 'Pro' });
   } else {
-    planBadgeHtml = `<span class="account-plan-badge-free"><span class="material-symbols-rounded icon-sm">lock</span>${t('account_free_badge')}</span>`;
+    planBadgeHtml = `<span class="google-profile-free-pill"><span class="material-symbols-rounded icon-sm">lock</span>${t('account_free_badge')}</span>`;
   }
 
   const lastSyncedStr = state.lastCloudSync
@@ -2890,80 +2919,99 @@ function renderAccountModal() {
     : t('cloud_never_synced');
 
   body.innerHTML = `
-    <!-- User Profile Card -->
-    <div class="account-user-card">
-      ${photoHtml}
-      <div class="account-user-details">
-        <span class="account-user-name">${safeDisplayName}</span>
-        <span class="account-user-email">${safeEmail}</span>
+    <!-- User Profile Hero Card -->
+    <div class="google-profile-card">
+      <div class="google-profile-hero">
+        ${photoHtml}
+        <div class="google-profile-hero-meta">
+          <span class="google-profile-hero-name">${safeDisplayName}</span>
+          <span class="google-profile-hero-email">${safeEmail}</span>
+          <div class="google-profile-hero-badge">
+            ${planBadgeHtml}
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Plan Status Card -->
-    <div class="account-plan-box ${isPro ? 'is-pro' : ''}">
-      <div class="account-plan-header">
-        <span class="account-plan-title">${t('account_status_label')}</span>
-        ${planBadgeHtml}
-      </div>
-      <p class="account-plan-desc">
-        ${isCambluPro
-          ? escapeHtml(t('account_camblu_pro_desc', { tier: cambluTierLabel }))
-          : (isPro ? t('account_pro_desc') : t('account_free_desc'))}
-      </p>
-      ${isCambluPro && validUntilFormatted ? `
-        <div class="account-plan-meta">
-          <span class="material-symbols-rounded icon-sm" style="color: var(--primary);">event_available</span>
-          <span>${escapeHtml(t('account_camblu_valid_until', { date: validUntilFormatted }))}</span>
+    <!-- Plan Status & Quick Links Group -->
+    <div class="google-profile-group">
+      <div class="google-profile-row" style="display:flex;flex-direction:column;gap:0.55rem;">
+        <div class="account-plan-header">
+          <span class="account-plan-title" style="color:#1f1f1f;font-size:0.85rem;">${t('account_status_label')}</span>
+          ${isPro ? `<span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">verified</span>` : ''}
         </div>
-      ` : ''}
+        <p class="account-plan-desc" style="color:#444746;">
+          ${isCambluPro
+            ? escapeHtml(t('account_camblu_pro_desc', { tier: cambluTierLabel }))
+            : (isPro ? t('account_pro_desc') : t('account_free_desc'))}
+        </p>
+        ${isCambluPro && validUntilFormatted ? `
+          <div class="account-plan-meta" style="color:#444746;">
+            <span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">event_available</span>
+            <span>${escapeHtml(t('account_camblu_valid_until', { date: validUntilFormatted }))}</span>
+          </div>
+        ` : ''}
+        ${!isPro ? `
+          <div class="account-camblu-hint">
+            <span class="material-symbols-rounded icon-sm" style="color:#3b82f7;flex-shrink:0;">card_membership</span>
+            <span>${escapeHtml(isCambluComum ? t('account_camblu_comum_hint') : t('account_camblu_free_hint'))}</span>
+          </div>
+        ` : ''}
+      </div>
+
       ${isCambluPro ? `
-        <a href="https://camblu.web.app/clube" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm" style="justify-content: center;">
-          <span class="material-symbols-rounded icon-sm">card_membership</span>
-          <span>${t('account_camblu_portal_btn')}</span>
-          <span class="material-symbols-rounded icon-sm">open_in_new</span>
+        <a href="https://camblu.web.app/clube" target="_blank" rel="noopener noreferrer" class="google-profile-row google-profile-row-link">
+          <span class="google-profile-row-leading">
+            <span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">card_membership</span>
+            <span>${t('account_camblu_portal_btn')}</span>
+          </span>
+          <span class="material-symbols-rounded icon-sm" style="color:#444746;">open_in_new</span>
         </a>
       ` : ''}
+
       ${isPro ? `
-        <a href="https://flashcards.camblu.org/" target="_blank" rel="noopener noreferrer" class="btn btn-tonal btn-sm" style="justify-content: center;">
-          <span class="material-symbols-rounded icon-sm">style</span>
-          <span>${t('account_open_flashcards_btn')}</span>
-          <span class="material-symbols-rounded icon-sm">open_in_new</span>
+        <a href="https://flashcards.camblu.org/" target="_blank" rel="noopener noreferrer" class="google-profile-row google-profile-row-link">
+          <span class="google-profile-row-leading">
+            <span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">style</span>
+            <span>${t('account_open_flashcards_btn')}</span>
+          </span>
+          <span class="material-symbols-rounded icon-sm" style="color:#444746;">open_in_new</span>
         </a>
       ` : `
-        <div class="account-camblu-hint">
-          <span class="material-symbols-rounded icon-sm" style="color: var(--primary); flex-shrink: 0;">card_membership</span>
-          <span>${escapeHtml(isCambluComum ? t('account_camblu_comum_hint') : t('account_camblu_free_hint'))}</span>
-        </div>
-        <a href="https://flashcards.camblu.org/" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="justify-content: center;">
-          <span class="material-symbols-rounded icon-sm">star</span>
-          <span>${t('account_upgrade_btn')}</span>
+        <a href="https://flashcards.camblu.org/" target="_blank" rel="noopener noreferrer" class="google-profile-row google-profile-row-link" style="color:#0b57d0;font-weight:600;">
+          <span class="google-profile-row-leading">
+            <span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">auto_awesome</span>
+            <span>${t('account_upgrade_btn')}</span>
+          </span>
+          <span class="material-symbols-rounded icon-sm" style="color:#0b57d0;">open_in_new</span>
         </a>
       `}
     </div>
 
-    <!-- Cloud Sync Section -->
-    <div class="account-cloud-box">
-      <div class="account-cloud-header">
-        <div class="account-cloud-status">
-          <span class="cloud-dot ${isPro ? (state.isSyncingCloud ? 'syncing' : 'active') : ''}"></span>
-          <span>${isPro ? (state.isSyncingCloud ? t('cloud_sync_status_pending') : t('cloud_sync_status_synced')) : t('cloud_sync_status_offline')}</span>
+    <!-- Cloud Sync & Local Backup Group -->
+    <div class="google-profile-group">
+      <div class="google-profile-row" style="display:flex;flex-direction:column;gap:0.45rem;">
+        <div class="account-cloud-header">
+          <div class="account-cloud-status" style="color:#1f1f1f;">
+            <span class="cloud-dot ${isPro ? (state.isSyncingCloud ? 'syncing' : 'active') : ''}"></span>
+            <span>${isPro ? (state.isSyncingCloud ? t('cloud_sync_status_pending') : t('cloud_sync_status_synced')) : t('cloud_sync_status_offline')}</span>
+          </div>
+          ${isPro ? `
+            <button type="button" class="btn btn-outline btn-sm" onclick="handleManualCloudSync()" ${state.isSyncingCloud ? 'disabled' : ''}>
+              <span class="material-symbols-rounded icon-sm ${state.isSyncingCloud ? 'm3-spin' : ''}">${state.isSyncingCloud ? 'progress_activity' : 'cloud_sync'}</span>
+              <span>${t('cloud_sync_now_btn')}</span>
+            </button>
+          ` : ''}
         </div>
-        ${isPro ? `
-          <button type="button" class="btn btn-outline btn-sm" onclick="handleManualCloudSync()" ${state.isSyncingCloud ? 'disabled' : ''}>
-            <span class="material-symbols-rounded icon-sm ${state.isSyncingCloud ? 'm3-spin' : ''}">${state.isSyncingCloud ? 'progress_activity' : 'cloud_sync'}</span>
-            <span>${t('cloud_sync_now_btn')}</span>
-          </button>
-        ` : ''}
+        <span class="account-cloud-time" style="color:#444746;">${escapeHtml(lastSyncedStr)}</span>
       </div>
-      <span class="account-cloud-time">${escapeHtml(lastSyncedStr)}</span>
+
+      ${buildAccountBackupBoxHtml()}
     </div>
 
-    <!-- Local Backup & Restore -->
-    ${buildAccountBackupBoxHtml()}
-
-    <!-- Sign Out Row -->
-    <div class="account-actions-row">
-      <button type="button" class="btn btn-danger btn-sm" onclick="handleGoogleSignOut()">
+    <!-- Sign Out Pill -->
+    <div class="google-profile-group">
+      <button type="button" class="google-profile-row google-profile-row-link" style="justify-content:center;color:#d93025;" onclick="handleGoogleSignOut()">
         <span class="material-symbols-rounded icon-sm">logout</span>
         <span>${t('auth_sign_out')}</span>
       </button>
